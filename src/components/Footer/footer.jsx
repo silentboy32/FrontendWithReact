@@ -27,19 +27,19 @@ export default function Footer() {
                                 </li>
 
 
-                                <li  className="mb-4">
+                                <li className="mb-4 file:">
                                     <Link to="/about" className="hover:underline">
                                         About
                                     </Link>
                                 </li>
 
-                                <li className="mb-4">
+                                <li className="mb-4 file:">
                                     <Link to="/contact" className="hover:underline">
                                         Contact
                                     </Link>
                                 </li>
 
-                                <li className="mb-4">
+                                <li className="mb-4 file:">
                                     <Link to="/github" className="hover:underline">
                                         Github
                                     </Link>

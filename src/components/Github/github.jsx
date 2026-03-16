@@ -36,7 +36,7 @@ function Github() {
                 <input
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className=" text-3xl p-2 overflow-auto " type="text" />
+                    className=" shrink-0 text-3xl p-2 overflow-hidden " type="text" />
 
                 <button onClick={getUser} className=" m-4 text-lg p-2  bg-orange-500 rounded-lg hover:bg-blue-500 ">submit</button>
             </div>

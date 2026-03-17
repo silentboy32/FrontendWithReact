@@ -53,11 +53,11 @@ function UserLogin() {
             Login with username and password
             <div className=" ">
 
-                <input value={username} className=" text-2xl p-4  m-4 text-black" type="text" placeholder=" Enter Username" onChange={(e) => setUsername(e.target.value)} />
+                <input  value={username} className=" text-2xl p-4 w-1/2 m-4 text-black" type="text" placeholder=" Enter Username" onChange={(e) => setUsername(e.target.value)} />
 
                 <br />
 
-                <input value={pass} className=" text-2xl p-4 m-4  text-black" type="password" placeholder=" Enter Password" onChange={(e) => setPass(e.target.value)} />
+                <input  value={pass} className=" text-2xl p-4 m-4 w-1/2 text-black" type="password" placeholder=" Enter Password" onChange={(e) => setPass(e.target.value)} />
 
             </div>
 

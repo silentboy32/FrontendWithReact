@@ -21,7 +21,11 @@ export default function Header() {
             <NavLink to="/" className="hover:text-orange-700">Home</NavLink>
             <NavLink to="/about" className="hover:text-orange-700">About</NavLink>
             <NavLink to="/contact" className="hover:text-orange-700">Contact</NavLink>
+
             <NavLink to="/github" className="hover:text-orange-700">Github</NavLink>
+
+            <NavLink to="/gameplay" className="hover:text-orange-700">GamePlay</NavLink>
+
           </div>
 
           {/* Right Buttons */}

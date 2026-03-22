@@ -44,6 +44,11 @@ export default function Footer() {
                                         Github
                                     </Link>
                                 </li>
+                                <li className="mb-4 file:">
+                                    <Link to="/gameplay" className="hover:underline">
+                                        GamePlay
+                                    </Link>
+                                </li>
 
 
                             </ul>

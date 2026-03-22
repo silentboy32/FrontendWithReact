@@ -8,7 +8,7 @@ export default function About() {
                     <div className="md:5/12 lg:w-5/12">
                         <img
                             src={dkpic}
-                            alt="imagea"
+                            alt="image"
                         />
                     </div>
                     <div className="md:7/12 lg:w-6/12">

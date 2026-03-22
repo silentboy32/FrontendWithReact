@@ -10,6 +10,7 @@ import Contact from './components/Contact/contact.jsx';
 import UserLogin from './components/User/userLogin.jsx';
 import Github from './components/Github/github.jsx';
 import Dashboard from './components/User/dashbord.jsx';
+import GamePlay from './components/GamePlay/GamePlay.jsx';
 
 
 
@@ -20,10 +21,9 @@ const router = createBrowserRouter(
       < Route path='/about' element={ < About /> }/>
       < Route path='/contact' element={ < Contact /> }/>
       < Route path='/login' element={ < UserLogin /> }/>
-      < Route path='/dashboard' element={ < Dashboard /> }/>
-      < Route 
-      path='/github' 
-      element={ < Github /> }/>
+      < Route path='/dashboard' element={ < Dashboard /> } />
+      < Route path='/github' element={ < Github /> }/>
+      < Route path='/gameplay' element={ < GamePlay /> }/>
 
     </ Route >
   )

@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
-import API from "../Api/Api";
 
 function UserLogin() {
 
@@ -9,7 +8,6 @@ function UserLogin() {
     const [username, setUsername] = useState("")
     const [pass, setPass] = useState("")
     const [data, setData] = useState(null)
-
 
     const FetchData = async () => {
 
@@ -31,48 +29,11 @@ function UserLogin() {
     }
 
 
-    const UserData = async (username, pass) => {
-        try {
-            const response = await API.post("/api/v1/users/login", {
-                username: username,
-                password: pass
-            });
-
-            return response.data;
-
-        } catch (error) {
-            console.log(
-                "Login error:",
-                error.response?.data || error.message
-            );
-
-            throw error;
-        }
-    }
-
-
-    // const FetchData = async () => {
-
-
-    //     const result = await UserData(username, pass);
-    //     setData(result)
-
-    //     if (data.success) {
-    //         // go to dashboard and send user data
-    //         navigate("/dashboard", { state: data.user });
-    //     } else {
-    //         alert(data.message);
-    //     }
-
-    // }
-
-
-
-
     return (
 
         <div className=" bg-gray-600 text-white p-4 text-3xl text-center">
-            Login with username and password
+        
+            Login with username and password 
             <div className=" ">
 
                 <input value={username} className=" text-2xl p-4 w-1/2 m-4 text-black" type="text" placeholder=" Enter Username" onChange={(e) => setUsername(e.target.value)} />
@@ -104,22 +65,42 @@ export default UserLogin
 
 
 
-// const UserData = async (username, pass) => {
+//  const UserData = async (username, pass) => {
+//         try {
+//             const response = await API.post("/api/v1/users/login", {
+//                 username: username,
+//                 password: pass
+//             });
 
-//     const response = await fetch("https://market-place-kqdk.onrender.com/api/v1/users/login", {
+//             return response.data;
 
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({
-//             username: username,
-//             password: pass
-//         })
-//     })
+//         } catch (error) {
+//             console.log(
+//                 "Login error:",
+//                 error.response?.data || error.message
+//             );
 
-//     return response.json()
-// }
+//             throw error;
+//         }
+//     }
+
+const UserData = async (username, pass) => {
+    
+
+    const response = await fetch(`${import.meta.env.VITE_APP_URL}/api/v1/users/login` , {
+
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            password: pass
+        })
+    })
+
+    return response.json()
+}
 
 
 

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import API from "../Api/Api";
 
 function UserLogin() {
 
@@ -13,21 +14,42 @@ function UserLogin() {
     const FetchData = async () => {
 
         const result = await UserData(username, pass);
-        
+
 
         setData(result)
         const { success, data, message } = result;
 
         if (success) {
-           
+
             navigate("/dashboard", { state: data.user });
         }
-            // } else {
+        // } else {
         //     alert(<>
         //         <h1>{message}</h1>
         //     </>);
         // }
     }
+
+
+    const UserData = async (username, pass) => {
+        try {
+            const response = await API.post("/api/v1/users/login", {
+                username: username,
+                password: pass
+            });
+
+            return response.data;
+
+        } catch (error) {
+            console.log(
+                "Login error:",
+                error.response?.data || error.message
+            );
+
+            throw error;
+        }
+    }
+
 
     // const FetchData = async () => {
 
@@ -53,11 +75,11 @@ function UserLogin() {
             Login with username and password
             <div className=" ">
 
-                <input  value={username} className=" text-2xl p-4 w-1/2 m-4 text-black" type="text" placeholder=" Enter Username" onChange={(e) => setUsername(e.target.value)} />
+                <input value={username} className=" text-2xl p-4 w-1/2 m-4 text-black" type="text" placeholder=" Enter Username" onChange={(e) => setUsername(e.target.value)} />
 
                 <br />
 
-                <input  value={pass} className=" text-2xl p-4 m-4 w-1/2 text-black" type="password" placeholder=" Enter Password" onChange={(e) => setPass(e.target.value)} />
+                <input value={pass} className=" text-2xl p-4 m-4 w-1/2 text-black" type="password" placeholder=" Enter Password" onChange={(e) => setPass(e.target.value)} />
 
             </div>
 
@@ -75,26 +97,33 @@ function UserLogin() {
 
         </div>
     )
-}
 
 
+};
 export default UserLogin
 
 
-const UserData = async (username, pass) => {
 
-    const response = await fetch("http://127.0.0.1:3030/api/v1/users/login", {
+// const UserData = async (username, pass) => {
 
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username: username,
-            password: pass
-        })
-    })
+//     const response = await fetch("https://market-place-kqdk.onrender.com/api/v1/users/login", {
 
-    return response.json()
-}
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({
+//             username: username,
+//             password: pass
+//         })
+//     })
+
+//     return response.json()
+// }
+
+
+
+
+
+
 

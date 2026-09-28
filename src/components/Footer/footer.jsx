@@ -64,7 +64,7 @@ function Footer() {
                         </li>
 
                         <li>
-                            <Link to="/products" className="hover:text-blue-400">
+                            <Link to="/" className="hover:text-blue-400">
                                 Products
                             </Link>
                         </li>
@@ -78,6 +78,12 @@ function Footer() {
                         <li>
                             <Link to="/contact" className="hover:text-blue-400">
                                 Contact
+                            </Link>
+                        </li>
+
+                        <li>
+                            <Link to="/GamePlay" className="hover:text-blue-400">
+                                GamePlay
                             </Link>
                         </li>
                     </ul>

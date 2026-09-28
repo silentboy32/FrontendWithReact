@@ -1,18 +1,45 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { UserProfile } from "../Services/UserService";
 
 function Dashboard() {
-  const users = {
-    name: "John Doe",
-    username: "johndoe",
-    email: "john@example.com",
-    status: "Active",
-    joined: "September 22, 2026",
-  };
 
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    const location = useLocation();
-    const user = location.state || {};
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+          setError("Please log in first.");
+          return;
+        }
+        const data = await UserProfile(token);
+
+        // Adjust this according to your API response.
+        setUser(data.data);
+
+      } catch (err) {
+        setError("Unable to load user details.");
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+
+  if (error) return <p>{error}</p>;
+
+  if (!user) return <p>No user data found.</p>;
+
 
   return (
     <div className="min-h-screen bg-gray-700 px-4 py-10">

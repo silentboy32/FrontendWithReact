@@ -7,9 +7,9 @@ import About from './components/About/about.jsx';
 import Layout from './layout.jsx';
 import { StrictMode } from 'react';
 import Contact from './components/Contact/contact.jsx';
-import UserLogin from './components/User/userLogin.jsx';
+import UserLogin from './AuthPages/userLogin.jsx';
 import Github from './components/Github/github.jsx';
-import Dashboard from './components/User/dashbord.jsx';
+import Dashboard from './AuthPages/dashbord.jsx';
 import GamePlay from './components/GamePlay/GamePlay.jsx';
 
 

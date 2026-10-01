@@ -1,11 +1,14 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LoginUser } from "../Services/UserService";
+import { LoginUser } from "../../Features/UserAuth/LoginAuth";
+import { Link, NavLink } from "react-router-dom";
 
 
 
-function userLogin() {
+function UserLogin() {
+
+
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(true)
     const navigate = useNavigate();
@@ -30,8 +33,8 @@ function userLogin() {
 
             const { success, data, message } = result;
             const token = data.accessToken;
+
             
-            console.log(token)
             localStorage.setItem("accessToken", token);
 
             if (success) {
@@ -48,16 +51,16 @@ function userLogin() {
 
 
 
-
-
     return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f4f7ff] px-4 py-8 sm:px-8">
 
-            {/* Background decoration */}
-            <div className="pointer-events-none absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#e7edff]" />
+
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-900 p-6  px-4 py-8 sm:px-8">
+
+            {/* Background decoration
+            <div className="pointer-events-none absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[#c81c06]" /> */}
 
             {/* Main Card */}
-            <div className="relative z-10 w-full max-w-5xl overflow-hidden rounded-2xl border border-[#e8edf6] bg-white shadow-[0_10px_40px_rgba(40,70,130,0.04)]">
+            <div className="relative z-10 w-full max-w-5xl overflow-hidden rounded-2xl border border-[#e8edf6] bg-slate-600 shadow-[0_10px_40px_rgba(40,70,130,0.04)]">
 
                 <div className="mx-auto w-full max-w-2xl px-6 py-12 sm:px-12 sm:py-16 md:px-16 md:py-20">
 
@@ -87,24 +90,22 @@ function userLogin() {
                         </svg>
 
                         <span className="text-3xl font-bold tracking-tight text-[#111827]">
-                            MarketPlace
+                            <span className="font-bold text-black ">Maket</span>
+                            <span className="font-bold text-blue-800 ">Place</span>
                         </span>
                     </div>
 
                     {/* Heading */}
                     <div className="mb-12">
-                        <h1 className="mb-3 text-4xl font-bold tracking-tight text-[#111827] sm:text-5xl">
+                        <h1 className="mb-3 text-4xl font-bold tracking-tight text-orange-600 sm:text-5xl">
                             Login
                         </h1>
 
-                        <p className="text-base leading-7 text-[#7b8497] sm:text-xl">
+                        <p className="text-base leading-7 text-gray-300 sm:text-xl">
                             Enter your email and password to sign in.
                         </p>
-
                         <br />
-                        <p className="text-base text-bold leading-7 text-[#ad0f2e] sm:text-2xl">
-                            {error}
-                        </p>
+                        <h1 className="text-red-600 text-2xl  font-bold">{error}</h1>
                     </div>
 
                     {/* Login Form */}
@@ -114,7 +115,7 @@ function userLogin() {
                         <div>
                             <label
                                 htmlFor="username"
-                                className="mb-4 block text-base font-medium text-[#202b40] sm:text-lg"
+                                className="mb-4 block text-base font-medium text-[#eb6314] sm:text-lg"
                             >
                                 Email or Username
                             </label>
@@ -139,11 +140,9 @@ function userLogin() {
                                     autoComplete="username"
                                     placeholder="Enter your email or username"
                                     required
-                                    className="h-full w-full min-w-0 bg-transparent text-base text-[#172033] outline-none placeholder:text-[#9aa3b4] sm:text-lg"
+                                    className="h-full w-full min-w-0 bg-transparent text-base text-[#16991a] outline-none placeholder:text-[#9aa3b4] sm:text-lg"
                                     value={username}
-                                    onChange={(e) =>
-                                        setUsername(e.target.value)
-                                    }
+                                    onChange={(e) => setUsername(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -152,7 +151,7 @@ function userLogin() {
                         <div>
                             <label
                                 htmlFor="password"
-                                className="mb-4 block text-base font-medium text-[#202b40] sm:text-lg"
+                                className="mb-4 block text-base font-medium text-[#e1551a] sm:text-lg"
                             >
                                 Password
                             </label>
@@ -171,16 +170,15 @@ function userLogin() {
                                 </svg>
 
                                 <input
-                                    value={password}
                                     id="password"
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     autoComplete="current-password"
                                     placeholder="Enter your password"
                                     required
-                                    className="h-full w-full min-w-0 bg-transparent text-base text-[#172033] outline-none placeholder:text-[#9aa3b4] sm:text-lg"
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)}
+                                    className="h-full w-full min-w-0 bg-transparent text-base text-[#17b414] outline-none placeholder:text-[#9aa3b4] sm:text-lg"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
 
                                 <button
@@ -232,7 +230,7 @@ function userLogin() {
                                     className="h-7 w-7 cursor-pointer appearance-none rounded-md border border-[#d7deeb] bg-white checked:border-indigo-600 checked:bg-indigo-600 checked:bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22%3E%3Cpath d=%22m3 8 3 3 7-7%22 stroke=%22white%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E')] checked:bg-center checked:bg-no-repeat"
                                 />
 
-                                <span className="text-base text-[#697386] sm:text-lg">
+                                <span className="text-base text-[#f0f3f8] sm:text-lg">
                                     Remember me
                                 </span>
                             </label>
@@ -328,4 +326,6 @@ function userLogin() {
     );
 }
 
-export default userLogin;
+
+
+export default UserLogin;

@@ -11,3 +11,10 @@ const API = axios.create({
 
 export default API;
 
+
+
+const ApiUrl = {
+  baseURL : import.meta.env.VITE_APP_URL
+}
+
+export { ApiUrl }

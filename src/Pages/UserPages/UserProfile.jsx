@@ -1,11 +1,12 @@
 
 import { useNavigate } from "react-router-dom";
-import { UserProfile } from "../../Features/UserAuth/LoginAuth";
+import { UserLogOut, UserProfile } from "../../Features/UserAuth/UserAuth";
 import { useState, useEffect } from "react";
 
 function Profile() {
     const navigate = useNavigate();
 
+    
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -16,13 +17,7 @@ function Profile() {
         const fetchUser = async () => {
             try {
 
-                const token = localStorage.getItem("accessToken");
-
-                if (!token) {
-                    setError("Please log in first.");
-                    return;
-                }
-                const result = await UserProfile(token);
+                const result = await UserProfile();
 
                 setUser(result.data)
                 // Adjust this according to your API response.
@@ -58,9 +53,22 @@ function Profile() {
     }
 
 
-    const handleLogout = () => {
-        localStorage.removeItem("accessToken");
-        navigate("/login", { replace: true });
+    const handleLogout = async () => {
+       
+        try {
+            
+            const result = await  UserLogOut()
+
+            if(result.success){
+               navigate("/login", { replace: true });
+            }else{
+                setError("Something Went Wrong !!")
+            }
+            
+
+        } catch (error) {
+            setError(error.message || "Failed to logout User !!")
+        }
     };
 
     return (

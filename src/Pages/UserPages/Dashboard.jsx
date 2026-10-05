@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ApiUrl } from "../../Services/Api";
-import { UserProfile } from "../../Features/UserAuth/LoginAuth";
+import { UserProfile } from "../../Features/UserAuth/UserAuth";
 import { useState, useEffect } from "react";
 
 function Dashboard() {
@@ -17,13 +17,8 @@ function Dashboard() {
     const fetchUser = async () => {
       try {
 
-        const token = localStorage.getItem("accessToken");
-
-        if (!token) {
-          setError("Please log in first.");
-          return;
-        }
-        const result = await UserProfile(token);
+       
+        const result = await UserProfile();
 
         setUser(result.data)
         // Adjust this according to your API response.

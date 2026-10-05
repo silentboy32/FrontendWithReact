@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LoginUser } from "../../Features/UserAuth/LoginAuth";
+import { LoginUser, UserProfile } from "../../Features/UserAuth/UserAuth";
 import { Link, NavLink } from "react-router-dom";
 
 
@@ -25,28 +25,30 @@ function UserLogin() {
         setLoading(true);
         setError("");
 
+
+
+
         try {
 
             const result = await LoginUser(username, password)
 
-
-
             const { success, data, message } = result;
-            const token = data.accessToken;
 
-            
-            localStorage.setItem("accessToken", token);
+
 
             if (success) {
 
-                navigate("/dashboard");
+                navigate("/dashboard", { replace: true });
 
             }
+
 
 
         } catch (error) {
             setError("Wrong Credentials !! Please Enter Right Credentials.")
         }
+
+
     };
 
 

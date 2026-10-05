@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { SingUp } from "../../Features/UserAuth/SingUpAuth";
+import { SignUp } from "../../Features/UserAuth/UserAuth";
 
 
 
@@ -8,7 +8,7 @@ import { SingUp } from "../../Features/UserAuth/SingUpAuth";
 function Signup() {
 
 
- 
+
   const [loading, setLoading] = useState("")
   const [message, setMessage] = useState("");
   const [Error, setError] = useState("")
@@ -40,31 +40,23 @@ function Signup() {
       return;
     }
 
-  
 
     try {
-      const response = await SingUp(formData);
+
+      const result = await SignUp(formData);
 
 
-      if (response.success) {
-        setMessage("Signup successful!");
-
-        // Optional: redirect to login
-        // navigate("/login");
-
-      } else {
-        setError(response.message || "Signup failed.");
+      if (result.success) {
+        setMessage(result.data);
       }
 
     } catch (error) {
 
-      if (error.message == "User Already exists !!") {
-        // redirect to Login
-        setMessage("Please Login !! ")
-      }
+
+
 
       setError(
-        error.message || "Something went wrong. Please try again."
+        error.response?.data?.message || "Something went wrong. Please try again."
       );
 
     } finally {

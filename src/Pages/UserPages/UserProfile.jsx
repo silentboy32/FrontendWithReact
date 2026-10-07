@@ -1,28 +1,31 @@
 
 import { useNavigate } from "react-router-dom";
-import { UserLogOut, UserProfile } from "../../Features/UserAuth/UserAuth";
+import { UserLogOut, UserProfile } from "../../Store/UserAuth/UserAuth";
 import { useState, useEffect } from "react";
 
 function Profile() {
     const navigate = useNavigate();
 
-    
+
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    
 
 
     useEffect(() => {
 
-        const fetchUser = async () => {
-            try {
 
+        const fetchUser = async () => {
+
+            try {
+                
                 const result = await UserProfile();
 
                 setUser(result.data)
                 // Adjust this according to your API response.
 
-
+               
 
             } catch (err) {
                 setError("Unable to load user details.");
@@ -54,17 +57,17 @@ function Profile() {
 
 
     const handleLogout = async () => {
-       
-        try {
-            
-            const result = await  UserLogOut()
 
-            if(result.success){
-               navigate("/login", { replace: true });
-            }else{
+        try {
+
+            const result = await UserLogOut()
+
+            if (result.success) {
+                navigate("/login", { replace: true });
+            } else {
                 setError("Something Went Wrong !!")
             }
-            
+
 
         } catch (error) {
             setError(error.message || "Failed to logout User !!")
@@ -135,7 +138,7 @@ function Profile() {
                             </p>
 
                             <p className="mt-1 font-medium">
-                                {user.fullname}
+                                {user.username}
                             </p>
                         </div>
 

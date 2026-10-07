@@ -1,6 +1,13 @@
 
-import API from "../../Services/Api";
+import API from "../../Lib/Api";
 
+const useAuth = () => {
+
+    return ;
+}
+
+
+export { useAuth}
 // Login User 
 const LoginUser = async (username, password) => {
     const Response = await API.post("/api/v1/users/login", {
@@ -51,4 +58,4 @@ const AllContact = async () => {
     return response.data;
 }
 
-export { LoginUser, UserProfile, SignUp , UserLogOut  , AllContact }
+export { LoginUser, SignUp , UserProfile, UserLogOut  , AllContact }

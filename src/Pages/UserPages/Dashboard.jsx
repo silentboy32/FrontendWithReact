@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { ApiUrl } from "../../Services/Api";
-import { UserProfile } from "../../Features/UserAuth/UserAuth";
+import { ApiUrl } from "../../Lib/Api";
+import { UserProfile } from "../../Store/UserAuth/UserAuth";
 import { useState, useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -10,19 +11,19 @@ function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   useEffect(() => {
 
 
     const fetchUser = async () => {
       try {
 
-       
+
         const result = await UserProfile();
 
         setUser(result.data)
         // Adjust this according to your API response.
-      
+
 
 
       } catch (err) {
@@ -53,9 +54,15 @@ function Dashboard() {
     );
   }
 
-  
+
   return (
     <div className="min-h-screen bg-slate-900 p-6 text-slate-100 sm:p-10">
+      <Toaster
+
+        containerStyle={{
+          top: "80px",
+        }}
+      />
 
       <div className="mx-auto max-w-5xl">
 
@@ -69,8 +76,8 @@ function Dashboard() {
 
             <p className="mt-1 text-slate-400">
               <span className=" text-blue-600 font-bold text-2xl">Welcome Back </span>
-            
-              <span className=" text-orange-600 font-bold text-2xl">{ user.username}</span>
+
+              <span className=" text-orange-600 font-bold text-2xl">{user.username}</span>
             </p>
           </div>
 

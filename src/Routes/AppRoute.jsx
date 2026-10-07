@@ -1,65 +1,96 @@
+
+
+
 import { createBrowserRouter } from "react-router-dom";
 
 
 import Layout from "../Components/Layout/MainLayout";
-import Home from "../Pages/ComonPages/Home";
+import HomePage from "../Pages/ComonPages/Home";
 import UserLogin from "../Pages/UserPages/UserLogin";
 import About from "../Pages/ComonPages/About";
 import Contact from "../Pages/ComonPages/Contact";
-import Github from  "../Pages/ComonPages/Github";
-import GamePlay  from "../Pages/ComonPages/GamePlay";
+import Github from "../Pages/ComonPages/Github";
+import GamePlay from "../Pages/ComonPages/GamePlay";
 import Dashboard from "../Pages/UserPages/Dashboard";
 import Signup from "../Pages/UserPages/UserSignUp";
 import Profile from "../Pages/UserPages/UserProfile";
-
-
+import ChatPage from "../Pages/UserPages/UserChat";
+import ProtectedRoute from "../Store/ProtectedRoute/ProtectedRoute";
 
 
 const Router = createBrowserRouter([
     {
-        path : "/",
-        element : < Layout />,
-      
-        children : [
+        path: "/",
+        element: <Layout />,
+
+        children: [
+
+            // PUBLIC
             {
-                path : "",
-                element : < Home />
+                index: true,
+                element: <HomePage />
             },
+
+            // PROTECTED PAGES
             {
-                path : "/about",
-                element : < About />
-            },
+                element: <ProtectedRoute />,
+
+                children: [
+                    {
+                        path: "about",
+                        element: <About />
+                    },
+                    {
+                        path: "contact",
+                        element: <Contact />
+                    },
+                    {
+                        path: "gameplay",
+                        element: <GamePlay />
+                    },
+                    {
+                        path: "dashboard",
+                        element: <Dashboard />
+                    },
+                    {
+                        path: "profile",
+                        element: <Profile />
+                    },
+                ]
+            }
+        ]
+    },
+
+    // PUBLIC
+    {
+        path: "/github",
+        element: <Github />
+    },
+
+    {
+        path: "/signup",
+        element: <Signup />
+    },
+
+    {
+        path: "/login",
+        element: <UserLogin />
+    },
+
+    // PROTECTED
+    {
+        element: <ProtectedRoute />,
+
+        children: [
             {
-                path : "/contact",
-                element : < Contact />
-            },
-            {
-                path : "/github",
-                element : < Github />
-            },
-            {
-                path : "/gameplay",
-                element : < GamePlay />
-            },
-            {
-                path : "/login",
-                element : < UserLogin />
-            },
-            {
-                path : "/dashboard",
-                element : < Dashboard />
-            },
-            {
-                path : "/signup",
-                element : < Signup />
-            },
-            {
-                path : "/profile",
-                element : < Profile />
-            },
+                path: "/chatpage",
+                element: <ChatPage />
+            }
         ]
     }
-])
-
-
+]);
 export default Router;
+
+
+
+

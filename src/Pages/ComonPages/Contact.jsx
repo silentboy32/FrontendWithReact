@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import axios from "axios";
-import { AllContact } from "../../Features/UserAuth/UserAuth";
+import { AllContact } from "../../Store/UserAuth/UserAuth";
 
 const Contact = () => {
 

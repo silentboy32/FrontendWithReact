@@ -55,8 +55,8 @@ function Header() {
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold">
           <span className="text-blue-600">&lt;/&gt;</span>{" "}
-          <span className="text-slate-50">Dev</span>
-          <span className="text-blue-600">ChatBot</span>
+          <span className="text-slate-50">Butter</span>
+          <span className="text-blue-600">fly</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -133,7 +133,7 @@ function Header() {
                   `rounded-md px-3 py-2 text-sm font-medium ${
                     isActive
                       ? "bg-blue-50 text-blue-600"
-                      : "text-slate-700 hover:bg-slate-50"
+                      : "text-gray-100 hover:bg-slate-50"
                   }`
                 }
               >

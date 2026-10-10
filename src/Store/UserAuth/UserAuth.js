@@ -1,13 +1,7 @@
 
 import API from "../../Lib/Api";
 
-const useAuth = () => {
 
-    return ;
-}
-
-
-export { useAuth}
 // Login User 
 const LoginUser = async (username, password) => {
     const Response = await API.post("/api/v1/users/login", {
@@ -51,7 +45,7 @@ const UserLogOut = async () => {
 
 const AllContact = async () => {
     
-    const response = await  API.get("/api/v1/message/contacts")
+    const response = await  API.get("/api/v1/users/contacts")
 
     
     

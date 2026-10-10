@@ -2,6 +2,8 @@
 import { useNavigate } from "react-router-dom";
 import { UserLogOut, UserProfile } from "../../Store/UserAuth/UserAuth";
 import { useState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import LoadingPage from "../ComonPages/LoadingPage";
 
 function Profile() {
     const navigate = useNavigate();
@@ -22,6 +24,7 @@ function Profile() {
                 
                 const result = await UserProfile();
 
+            
                 setUser(result.data)
                 // Adjust this according to your API response.
 
@@ -41,9 +44,7 @@ function Profile() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-300">
-                Loading profile...
-            </div>
+            <LoadingPage message="Loading Profile"/>
         );
     }
 
@@ -64,18 +65,27 @@ function Profile() {
 
             if (result.success) {
                 navigate("/login", { replace: true });
+                toast.success(" LoggedOut Successfully ")
             } else {
-                setError("Something Went Wrong !!")
+                toast.error( "Something Went Wrong ")
             }
 
 
         } catch (error) {
-            setError(error.message || "Failed to logout User !!")
+            toast.error("Failed To LogOut ")
         }
     };
 
     return (
         <div className="min-h-screen bg-slate-900 p-6 text-slate-100 sm:p-10">
+
+
+             <Toaster
+
+                containerStyle={{
+                    top: "8px",
+                }}
+            />
 
             <div className="mx-auto max-w-2xl">
 
@@ -106,7 +116,7 @@ function Profile() {
 
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-700 text-xl font-semibold">
                             <div>
-                                {user?.username
+                                {user?.fullname
                                     ?.trim()
                                     .split(/\s+/)
                                     .map(word => word[0])
@@ -138,7 +148,7 @@ function Profile() {
                             </p>
 
                             <p className="mt-1 font-medium">
-                                {user.username}
+                                {user.fullname}
                             </p>
                         </div>
 

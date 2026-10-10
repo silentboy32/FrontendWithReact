@@ -2,7 +2,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { UserProfile } from "../UserAuth/UserAuth";
- import LoadingPage from "../../Pages/ComonPages/LodingPage";
+ import LoadingPage from "../../Pages/ComonPages/LoadingPage";
 
 const ProtectedRoute = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);

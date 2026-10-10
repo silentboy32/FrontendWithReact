@@ -5,15 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, UserCheck, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import backgroundImage from "../../assets/Image-2026-10-06-23.04.13.jpeg"
-
-
-
+import { SignUp } from '../../Store/UserAuth/UserAuth';
+import { Toaster } from 'react-hot-toast';
 
 
 
 const SignupPage = () => {
   const navigate = useNavigate();
-  const [confirmpasswd , setConfirmpasswd ] = useState("")
+  const [confirmpasswd, setConfirmpasswd] = useState("")
   // Form State
   const [formData, setFormData] = useState({
     fullname: '',
@@ -29,7 +28,7 @@ const SignupPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Clear error when user starts typing again
     if (error) setError('');
   };
@@ -57,39 +56,49 @@ const SignupPage = () => {
     }
 
     try {
-      
 
-      console.log('Signup Data:', formData);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Fake delay
-      
-      navigate('/login', { replace: true });
-      
+      const response = await SignUp(formData);
+
+      if (response.success) {
+
+
+        toast.success(response.data || " User Created Successfully ")
+        navigate('/login', { replace: true });
+      }
+
+
     } catch (err) {
-      
+
       toast.error(err.response.data.message)
-      
+
 
     } finally {
       setLoading(false);
     }
   };
 
+
   return (
-    <div 
+    <div
       className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat relative py-10"
       style={{
         backgroundImage: ` url(${backgroundImage})`,
       }}
     >
 
-    
+      <Toaster
+
+        containerStyle={{
+          top: "8px",
+        }}
+      />
 
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-purple-900/40 mix-blend-multiply"></div>
 
       {/* Signup Card */}
       <div className="relative z-10 w-full max-w-md p-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
-        
+
         {/* Header */}
         <h2 className="text-4xl font-bold text-center text-white mb-8 drop-shadow-md">
           Sign Up
@@ -97,7 +106,7 @@ const SignupPage = () => {
 
         {/* Form */}
         <form className="space-y-4" onSubmit={handleSubmit}>
-          
+
           {/* Full Name */}
           <div className="relative group">
             <input
@@ -156,7 +165,7 @@ const SignupPage = () => {
               type="password"
               name="confirmpasswd"
               value={confirmpasswd}
-              onChange={(e) => setConfirmpasswd(e.target.value )}
+              onChange={(e) => setConfirmpasswd(e.target.value)}
               placeholder="Confirm Password"
               className="w-full bg-white/20 text-white placeholder-gray-200 rounded-full py-3 px-6 pr-12 outline-none focus:bg-white/30 transition-all border border-transparent focus:border-white/50"
             />
@@ -172,7 +181,7 @@ const SignupPage = () => {
           )}
 
           {/* Submit Button */}
-          <button 
+          <button
             type="submit"
             disabled={loading}
             className={`
@@ -209,8 +218,8 @@ const SignupPage = () => {
 
         </form>
       </div>
-    
-    
+
+
     </div>
   );
 };

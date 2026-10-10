@@ -8,7 +8,7 @@ import backgroundImage from "../../assets/Image-2026-10-06-23.04.13.jpeg"
 
 import { UserProfile } from '../../Store/UserAuth/UserAuth';
 
-import { MyChat, GetMessage } from '../../Store/ChatAuth/ChatAuth';
+import { MyChat, GetMessage, SendMessage } from '../../Store/ChatAuth/ChatAuth';
 
 
 
@@ -97,14 +97,13 @@ const ChatPage = () => {
     setSelectedChat(contact);
     setSidebarOpen(false);
 
-    console.log("working !!")
-    console.log(contact.conversationId)
+
     try {
 
-      
+
       const result = await GetMessage(contact.conversationId);
 
-      console.log(result)
+
       const fetchedMessages = result.data.map((msg) => {
         const senderId =
           typeof msg.sender === "object"
@@ -142,26 +141,80 @@ const ChatPage = () => {
     setInput('');
   };
 
-  const sendMessage = (text) => {
+
+
+
+  const sendMessage = async (text) => {
     const clean = text.trim();
+
     if (!clean || !selectedChat) return;
 
-    const now = new Date();
-    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    try {
+      // Send the message to your backend
+      const result = await SendMessage(
+        clean,
+        selectedChat.conversationId
+      );
 
-    setMessages((prev) => {
-      // const existing = prev[selectedChat.id] || [];
-      const existing = prev[selectedChat.conversationId] || [];
-      return {
-        ...prev,
+      // Get the message saved in MongoDB
+      const msg = result.data;
 
-        [selectedChat.conversationId]: [
-          ...existing,
-          { id: existing.length + 1, from: 'me', text: clean, time },
-        ],
+      const senderId =
+        typeof msg.sender === "object" && msg.sender !== null
+          ? msg.sender._id
+          : msg.sender;
+
+      // Convert backend data into your UI format
+      const newMessage = {
+        id: msg._id,
+        from:
+          String(senderId) === String(currentUserId)
+            ? "me"
+            : "other",
+        text: msg.content,
+        time: new Date(msg.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
-    });
+
+      // Update the selected conversation
+      setMessages((prev) => ({
+        ...prev,
+        [selectedChat.conversationId]: [
+          ...(prev[selectedChat.conversationId] || []),
+          newMessage,
+        ],
+      }));
+
+    } catch (error) {
+      console.error(
+        "Failed to send message:",
+        error.response?.data || error.message
+      );
+    }
   };
+
+  // const sendMessage = (text) => {
+  //   const clean = text.trim();
+  //   if (!clean || !selectedChat) return;
+
+  //   const now = new Date();
+  //   const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  //   setMessages((prev) => {
+  //     // const existing = prev[selectedChat.id] || [];
+  //     const existing = prev[selectedChat.conversationId] || [];
+  //     return {
+  //       ...prev,
+
+  //       [selectedChat.conversationId]: [
+  //         ...existing,
+  //         { id: existing.length + 1, from: 'me', text: clean, time },
+  //       ],
+  //     };
+  //   });
+  // };
 
   const handleQuickReply = (text) => sendMessage(text);
 

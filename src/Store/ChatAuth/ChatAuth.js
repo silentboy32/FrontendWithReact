@@ -27,17 +27,18 @@ const MyChat = async () => {
 
 // Send Messages 
 
-const SendMessage = async (data) => {
+const SendMessage = async (content ,conversationid) => {
 
-    const response = await API.post("/api/v1/message/:conversationId", data )
+    const response = await API.post(`/api/v1/message/${conversationid}`, { content } )
 
+    
     return response.data;
 }
 
 // Get Message 
-const GetMessage = async (id) => {
+const GetMessage = async (conversationid) => {
 
-    const response = await API.get(`/api/v1/message/${id}`,)
+    const response = await API.get(`/api/v1/message/${conversationid}`,)
 
     return response.data;
 }

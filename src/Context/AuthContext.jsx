@@ -32,21 +32,7 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  // Called after successful login — backend sets the cookie, we store the user
-//   const login = (userData) => {
-//     setUser(userData);
-//   };
 
-//   // Called on logout — backend clears the cookie
-//   const logout = async () => {
-//     try {
-//       await api.post('/api/auth/logout');
-//     } catch (err) {
-//       console.error('Logout failed:', err);
-//     } finally {
-//       setUser(null);
-//     }
-//   };
 
   return (
     <AuthContext.Provider

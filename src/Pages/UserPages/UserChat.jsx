@@ -188,7 +188,7 @@ const ChatPage = () => {
       }));
 
     } catch (error) {
-      console.error(
+      toast.error(
         "Failed to send message:",
         error.response?.data || error.message
       );

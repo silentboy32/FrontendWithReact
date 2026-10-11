@@ -10,14 +10,15 @@ import { UserProfile } from '../../Store/UserAuth/UserAuth';
 
 import { MyChat, GetMessage, SendMessage } from '../../Store/ChatAuth/ChatAuth';
 
-
+import toast from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 const ChatPage = () => {
 
 
   // const [activeTab, setActiveTab] = useState('contacts');
   const [selectedChat, setSelectedChat] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // 🆕 desktop collapse
   const [input, setInput] = useState('');
 
@@ -232,6 +233,8 @@ const ChatPage = () => {
       className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative flex items-center justify-center p-0 md:p-6"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
+
+      <Toaster    />
       <div className="fixed inset-0 bg-purple-900/50 mix-blend-multiply pointer-events-none"></div>
       <div className="fixed inset-0 bg-gradient-to-b from-transparent via-purple-950/30 to-purple-950/80 pointer-events-none"></div>
 

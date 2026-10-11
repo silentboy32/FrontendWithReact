@@ -11,25 +11,93 @@ import backgroundImage from "../../assets/Image-2026-10-06-23.04.13.jpeg";
 import { UserProfile } from "../../Store/UserAuth/UserAuth";
 import toast from "react-hot-toast";
 import LoadingPage from "../ComonPages/LoadingPage";
+import { useLocation } from "react-router-dom";
+import { CreateChat } from "../../Store/ChatAuth/ChatAuth";
+
+import { Toaster } from "react-hot-toast";
+
+
 
 const Profile = () => {
+
+  const location = useLocation();
+  const Userdata = location.state?.data;
+
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const navigate = useNavigate();
 
+
   useEffect(() => {
-    (async () => {
+    const fetchProfile = async () => {
       try {
+        if (Userdata) {
+          setUser(Userdata);
+          return;
+        }
+
         const res = await UserProfile();
-        if (res.success) setUser(res.data);
+
+        if (res.success) {
+          setUser(res.data);
+        }
       } catch (err) {
-        toast.error(err?.response?.data?.message || "Something went wrong");
+        toast.error(
+          err?.response?.data?.message || "Something went wrong"
+        );
       } finally {
         setIsLoading(false);
       }
-    })();
-  }, []);
+    };
+
+    fetchProfile();
+  }, [Userdata]);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+
+  //       const res = await UserProfile();
+
+  //       if (res.success)
+
+  //       // console.log("current", res.data._id);
+  //       // console.log("Other", Userdata._id, Userdata);
+  //       // 
+
+
+  //       if(Userdata){
+  //         setUser(Userdata);
+  //       }else{
+  //         setUser(res.data);
+  //       }
+
+
+  //     } catch (err) {
+  //       toast.error(err?.response?.data?.message || "Something went wrong");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   })();
+  // }, [Userdata]);
+
+
+  const CreateConversation = async () => {
+    try {
+
+      const response = await CreateChat(Userdata._id);
+
+      if (response.success) {
+        toast.success(response.data.message || "User Added");
+        navigate("/chatpage");
+      }
+
+    } catch (error) {
+      toast.error(
+        err?.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
 
   if (isLoading) return <LoadingPage message="Profile Loading" />;
 
@@ -51,6 +119,7 @@ const Profile = () => {
       className="min-h-screen w-full bg-cover bg-center relative"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
+      <Toaster />
       <div className="fixed inset-0 bg-purple-900/50 mix-blend-multiply pointer-events-none" />
       <div className="fixed inset-0 bg-gradient-to-b from-transparent via-purple-950/30 to-purple-950/80 pointer-events-none" />
 
@@ -79,39 +148,49 @@ const Profile = () => {
                 <span className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full bg-emerald-400 ring-4 ring-slate-950" />
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
+              {Userdata ? (<div className="flex items-center gap-2 flex-wrap">
+
                 <button
                   onClick={() => setIsFollowing(!isFollowing)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition ${
-                    isFollowing
-                      ? "bg-white/15 text-white border border-white/25"
-                      : "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md shadow-purple-500/40"
-                  }`}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition ${isFollowing
+                    ? "bg-white/15 text-white border border-white/25"
+                    : "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md shadow-purple-500/40"
+                    }`}
                 >
                   {isFollowing ? <CheckCircle className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                   {isFollowing ? "Following" : "Follow"}
                 </button>
 
                 <button
-                  onClick={() => navigate("/chatpage")}
+                  onClick={CreateConversation}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white text-xs sm:text-sm font-semibold hover:bg-white/25 transition"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Message</span>
+                  <span className="hidden cursor-pointer sm:inline">Message</span>
                 </button>
 
-                <Link
-                  to="/profile/edit"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white text-xs sm:text-sm font-semibold hover:bg-white/25 transition"
-                >
-                  <Pencil className="w-4 h-4" />
-                  <span className="hidden sm:inline">Edit</span>
-                </Link>
-
-                <button className="p-2 rounded-full bg-white/15 border border-white/25 text-white hover:bg-white/25 transition">
-                  <Settings className="w-4 h-4" />
-                </button>
               </div>
+              )
+                :
+                (
+                  <div className="flex items-center gap-2 flex-wrap">
+
+                    <Link
+                      to="/profile/edit"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white text-xs sm:text-sm font-semibold hover:bg-white/25 transition"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span className="hidden sm:inline">Edit</span>
+                    </Link>
+
+                    <button className="p-2 rounded-full bg-white/15 border border-white/25 text-white hover:bg-white/25 transition">
+                      <Settings className="w-4 h-4" />
+                    </button>
+
+                  </div>)};
+
+
+
             </div>
 
             {/* Name + Username */}
@@ -140,7 +219,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

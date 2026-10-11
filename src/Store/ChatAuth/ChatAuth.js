@@ -5,10 +5,9 @@ import API from "../../Lib/Api";
 
 // Create Conversation
 
-const CreateChat = async (data) => {
+const CreateChat = async (participantId) => {
 
-    const response = await API.post("/api/v1/conversations", data );
-
+    const response = await API.post("/api/v1/conversations", {  participantId } );
     return response.data;
 
 }

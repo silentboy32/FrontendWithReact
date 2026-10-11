@@ -60,8 +60,7 @@ const SearchUsers = async (query) => {
     const response = await API.get("/api/v1/users/search", {
         params: { query }
     });
-
-    console.log(response.data,"Auth")
+    
     return response.data;
 };
 

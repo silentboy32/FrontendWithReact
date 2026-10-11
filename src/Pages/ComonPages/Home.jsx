@@ -23,59 +23,13 @@ const HomePage = () => {
       <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-24 md:pt-24 md:pb-32">
         <div className="flex flex-col items-center text-center">
 
-          {/* Heading */}
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight mb-6 drop-shadow-lg">
-            <SearchBar onSearch={(q) => console.log('Search:', q)} />
-            <br />
-            <span className="from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">
-              extraordinary.
-            </span>
-          </h1>
 
-          {/* Subheading */}
-          <p className="text-white/80 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-            A beautiful, modern platform designed for creators, developers, and dreamers.
-            Everything you need to launch your next big idea — beautifully.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Link
-              to="/signup"
-              className="group flex items-center gap-2 bg-white text-purple-900 font-bold px-8 py-4 rounded-full shadow-xl shadow-purple-900/40 hover:bg-purple-50 hover:-translate-y-1 transition-all"
-            >
-              Get Started Free
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <a
-              href="#features"
-              className="text-white font-semibold px-8 py-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all"
-            >
-              Learn More
-            </a>
-          </div>
-
-          {/* Social Proof */}
-          <div className="mt-12 flex flex-col items-center gap-3">
-            <div className="flex -space-x-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="w-10 h-10 rounded-full border-2 border-purple-900/50  from-purple-400 to-pink-500 flex items-center justify-center text-white text-xs font-bold"
-                >
-                  {String.fromCharCode(64 + i)}
-                </div>
-              ))}
-            </div>
             <div className="flex items-center gap-2 text-white/80 text-sm">
               <div className="flex">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-300 text-yellow-300" />
-                ))}
+            
               </div>
-              <span>Loved by 10,000+ users worldwide</span>
             </div>
-          </div>
+          
         </div>
       </section>
 

@@ -50,6 +50,20 @@ const AllContact = async () => {
     
     
     return response.data;
+
 }
 
-export { LoginUser, SignUp , UserProfile, UserLogOut  , AllContact }
+
+
+
+const SearchUsers = async (query) => {
+    const response = await API.get("/api/v1/users/search", {
+        params: { query }
+    });
+
+    console.log(response.data,"Auth")
+    return response.data;
+};
+
+
+export { LoginUser, SignUp , UserProfile, UserLogOut  , AllContact , SearchUsers }

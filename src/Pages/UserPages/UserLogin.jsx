@@ -61,7 +61,7 @@ function UserLogin() {
 
             if (success) {
                 toast.success("Login Successfully ");
-                navigate("/profile", { replace: true });
+                navigate("/", { replace: true });
 
             }
 

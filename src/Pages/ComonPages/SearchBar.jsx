@@ -115,25 +115,6 @@ const SearchBar = ({ onSearch }) => {
           </button>
         </button>
 
-        {/* Gradient Search Button */}
-        {/* <button
-          type="submit"
-          onClick={goToSearch}
-          style={{ flexShrink: 0 }}
-          className="
-            flex items-center justify-center gap-2
-            bg-white/15 backdrop-blur-md
-            border border-white/30
-            text-white text-xs sm:text-sm font-semibold
-            px-3 sm:px-5 md:px-6 py-2 sm:py-2.5 rounded-full
-            hover:bg-white/25 hover:-translate-y-0.5
-            active:translate-y-0 active:scale-95
-            transition-all duration-300
-          "
-        >
-           <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:hidden" />
-          <span className="hidden md:inline">Search</span> 
-        </button> */}
       </div>
     </form>
   );

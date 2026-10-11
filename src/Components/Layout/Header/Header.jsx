@@ -1,8 +1,9 @@
 
+import ButterflyIcon from "./ButterflyIcon";
 
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, MessageCircle, ChevronDown, User, Settings, Pencil, LogOut } from "lucide-react";
+import { Bell, MessageCircle, ChevronDown, User, Settings, Pencil, LogOut, Search } from "lucide-react";
 import { UserProfile, UserLogOut } from "../../../Store/UserAuth/UserAuth";
 import toast from "react-hot-toast";
 
@@ -41,23 +42,15 @@ function Header() {
   }, []);
 
   const handleLogout = async () => {
-
     try {
-
-      const response = await UserLogOut()
-      if(response.success){
-        toast.success(" User LogOut Successfully ")
+      const response = await UserLogOut();
+      if (response.success) {
+        toast.success("User LogOut Successfully");
         navigate("/login");
       }
-
-      
     } catch (error) {
-      toast.error(" failed to logout user ")
+      toast.error("failed to logout user");
     }
-    // setUser(null);
-    // setIsLoggedIn(false);
-    // setIsProfileOpen(false);
-    // setIsMenuOpen(false);
   };
 
   return (
@@ -69,7 +62,7 @@ function Header() {
           <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             <div className="relative">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-white font-bold text-sm">&lt;/&gt;</span>
+                <span className="text-white font-bold text-sm"><ButterflyIcon size={40} /></span>
               </div>
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 blur-md opacity-40 group-hover:opacity-70 transition-opacity"></div>
             </div>
@@ -81,6 +74,15 @@ function Header() {
 
           {/* ================= DESKTOP ACTIONS ================= */}
           <div className="hidden md:flex items-center gap-4">
+
+            {/* Search */}
+            <button
+              onClick={() => navigate("/searchpage")}
+              className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200 group"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </button>
 
             {/* Notification */}
             <button
@@ -218,23 +220,36 @@ function Header() {
             )}
           </div>
 
-          {/* ================= MOBILE MENU BUTTON ================= */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden relative p-2 rounded-lg text-slate-200 hover:bg-slate-800 transition"
-            aria-label="Toggle menu"
-            aria-expanded={isMenuOpen}
-          >
-            {isMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+          {/* ================= MOBILE ACTIONS (search + menu) ================= */}
+          <div className="flex items-center gap-1 md:hidden">
+            {/* Search */}
+            <button
+              onClick={() => navigate("/searchpage")}
+              className="p-2 rounded-lg text-slate-200 hover:bg-slate-800 transition"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
+            {/* Menu toggle */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="relative p-2 rounded-lg text-slate-200 hover:bg-slate-800 transition"
+              aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
+            >
+              {isMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+
         </nav>
       </div>
 
@@ -245,9 +260,7 @@ function Header() {
 
             {/* Notifications + Chats */}
             <div className="grid grid-cols-2 gap-2">
-              <button
-                className="relative flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium text-slate-200 bg-slate-800/50 border border-slate-700/60 hover:bg-slate-800 transition"
-              >
+              <button className="relative flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium text-slate-200 bg-slate-800/50 border border-slate-700/60 hover:bg-slate-800 transition">
                 <Bell className="w-4 h-4" />
                 Notifications
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500"></span>
@@ -349,369 +362,3 @@ function Header() {
 }
 
 export default Header;
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { Link, NavLink, useNavigate } from "react-router-dom";
-// import { UserProfile } from "../../../Store/UserAuth/UserAuth";
-
-// function Header() {
-
-//   const [isMenuOpen, setIsMenuOpen] = useState(false);
-//   // const { user, isLoggedIn, logout } = useAuth(); // <-- NEW
-//   const [ user, setUser ] = useState({
-//      "username" : "Dk Barman",
-//      "password" : "something "
-//   })
-//   const [ isLoggedIn, setisLoggedIn ] = useState(true);
-
-
-//  useEffect(() => {
-//         const checkLogin = async () => {
-//             try {
-//                 const res = await UserProfile();
-
-//                 if (res.success) {
-//                   setUser(res.data);
-//                   setisLoggedIn(true)
-//                 }
-
-//             } catch (error) {
-              
-//               setisLoggedIn(false) // User is not logged in
-//             }
-//         };
-
-//         checkLogin();
-//     }, []);
-  
-
-//   const navigate = useNavigate();
-
-//   const handleLogout = () => {
-//     logout();
-//     setIsMenuOpen(false);
-//     navigate("/login");
-//   };
-
-//   const navLinks = [
-//       { name : "Message", path: "/chatpage" },
-//       { name : "Dashboard", path: "/dashboard" },
-//   ];
-
-//   return (
-//     <header className="sticky top-0 z-60 border-b bg-gray-950 shadow-sm h-25">
-
-//       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-
-//         {/* Logo */}
-//         <Link to="/" className="text-2xl font-bold">
-//           <span className="text-blue-600">&lt;/&gt;</span>{" "}
-//           <span className="text-slate-50">Butter</span>
-//           <span className="text-blue-600">fly</span>
-//         </Link>
-
-//         {/* Desktop Navigation */}
-//         <div className="hidden items-center gap-8 md:flex">
-//           {navLinks.map((link) => (
-//             <NavLink
-//               key={link.path}
-//               to={link.path}
-//               className={({ isActive }) =>
-//                 `relative py-2 text-sm font-medium transition ${
-//                   isActive
-//                     ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-blue-600"
-//                     : "text-white hover:text-blue-600"
-//                 }`
-//               }
-//             >
-//               {link.name}
-//             </NavLink>
-//           ))}
-//         </div>
-
-//         {/* Desktop Actions */}
-//         <div className="hidden items-center gap-4 md:flex">
-
-//           {/* ✨ CONDITIONAL: Profile vs Login ✨ */}
-//           {isLoggedIn ? (
-//             <div className="flex items-center gap-3">
-//               <Link
-//                 to="/profile"
-//                 className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 hover:bg-slate-200 transition"
-//               >
-//                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-//                   {user?.username?.[0]?.toUpperCase() || "U"}
-//                 </div>
-//                 <span className="text-sm font-medium text-slate-700">
-//                   {user?.username || "Profile"}
-//                 </span>
-//               </Link>
-//             </div>
-//           ) : (
-//             <Link
-//               to="/login"
-//               className="font-medium text-blue-600 hover:text-blue-800"
-//             >
-//               Login
-//             </Link>
-//           )}
-//         </div>
-
-
-
-
-//         {/* Mobile Menu Button */}
-//         <button
-//           onClick={() => setIsMenuOpen(!isMenuOpen)}
-//           className="text-2xl text-slate-700 md:hidden"
-//           aria-label="Toggle menu"
-//           aria-expanded={isMenuOpen}
-//         >
-//           {isMenuOpen ? "✕" : "☰"}
-//         </button>
-//       </nav>
-
-//       {/* Mobile Navigation */}
-//       {isMenuOpen && (
-//         <div className="border-t bg-blue-950 px-6 py-4 md:hidden">
-//           <div className="flex flex-col gap-4">
-//             {navLinks.map((link) => (
-//               <NavLink
-//                 key={link.path}
-//                 to={link.path}
-//                 onClick={() => setIsMenuOpen(false)}
-//                 className={({ isActive }) =>
-//                   `rounded-md px-3 py-2 text-sm font-medium ${
-//                     isActive
-//                       ? "bg-blue-50 text-blue-600"
-//                       : "text-gray-100 hover:bg-slate-50"
-//                   }`
-//                 }
-//               >
-//                 {link.name}
-//               </NavLink>
-//             ))}
-
-//             {/* ✨ CONDITIONAL: Mobile Profile vs Login ✨ */}
-//             {isLoggedIn ? (
-//               <>
-//                 <Link
-//                   to="/profile"
-//                   onClick={() => setIsMenuOpen(false)}
-//                   className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-orange-600 hover:bg-slate-50"
-//                 >
-//                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-//                     {user?.username?.[0]?.toUpperCase() || "U"}
-//                   </div>
-//                   {user?.username || "Profile"}
-//                 </Link>
-                
-//                 <button
-                 
-//                   className="rounded-md px-3 py-2 text-left text-sm font-medium text-white hover:bg-red-50"
-//                 >
-//                   Edit Profile
-//                 </button>
-//                 <button
-                 
-//                   className="rounded-md px-3 py-2 text-left text-sm font-medium text-white hover:bg-red-50"
-//                 >
-//                    Settings 
-//                 </button>
-//               </>
-
-//             ) : (
-//               <>
-//                 <Link
-//                   to="/login"
-//                   onClick={() => setIsMenuOpen(false)}
-//                   className="rounded-md px-3 py-2 text-sm font-medium text-blue-600"
-//                 >
-//                   Login
-//                 </Link>
-//                 <Link
-//                   to="/signup"
-//                   onClick={() => setIsMenuOpen(false)}
-//                   className="rounded-lg bg-blue-600 px-4 py-2.5 text-center font-medium text-white hover:bg-blue-700"
-//                 >
-//                   Sign Up
-//                 </Link>
-//               </>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//     </header>
-//   );
-// }
-
-// export default Header;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // import React, { useState } from "react";
-// // import { Link, NavLink } from "react-router-dom";
-
-// // function Header() {
-// //   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-// //   const navLinks = [
-// //     { name: "Home", path: "/" },
-// //     { name: "About", path: "/about" },
-// //     { name: "Contact", path: "/contact" },
-    
-// //   ];
-
-// //   return (
-// //     <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
-// //       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-
-// //         {/* Logo */}
-// //         <Link to="/" className="text-2xl font-bold">
-// //           <span className="text-blue-600">&lt;/&gt;</span>{" "}
-// //           <span className="text-slate-900">Dev</span>
-// //           <span className="text-blue-600">Market</span>
-// //         </Link>
-
-// //         {/* Desktop Navigation */}
-// //         <div className="hidden items-center gap-8 md:flex">
-// //           {navLinks.map((link) => (
-// //             <NavLink
-// //               key={link.path}
-// //               to={link.path}
-// //               className={({ isActive }) =>
-// //                 `relative py-2 text-sm font-medium transition ${
-// //                   isActive
-// //                     ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-blue-600"
-// //                     : "text-slate-700 hover:text-blue-600"
-// //                 }`
-// //               }
-// //             >
-// //               {link.name}
-// //             </NavLink>
-// //           ))}
-// //         </div>
-
-// //         {/* Desktop Actions */}
-// //         <div className="hidden items-center gap-4 md:flex">
-
-// //           {/* Search */}
-// //           {/* <div className="flex items-center rounded-full bg-slate-100 px-2 py-2">
-// //             <span className="mr-2 text-slate-500">⌕</span>
-
-// //             <input
-// //               type="text"
-// //               placeholder="Search..."
-// //               className="w-28 bg-transparent text-sm outline-none placeholder:text-slate-500"
-// //             />
-// //           </div> */}
-
-// //           {/* Cart */}
-// //           <button className="relative text-xl text-slate-700 hover:text-blue-600">
-// //             🛒
-// //             <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">
-// //               2
-// //             </span>
-// //           </button>
-
-// //           {/* Notification */}
-// //           <button className="relative text-xl text-slate-700 hover:text-blue-600">
-// //             🔔
-// //             <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-red-500"></span>
-// //           </button>
-
-// //           {/* Divider */}
-// //           <div className="h-8 w-px bg-slate-200"></div>
-
-// //           {/* Login */}
-// //           <Link
-// //             to="/login"
-// //             className="font-medium text-blue-600 hover:text-blue-800"
-// //           >
-// //             Login
-// //           </Link>
-
-// //           {/* Signup */}
-// //           {/* <Link
-// //             to="/signup"
-// //             className="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700"
-// //           >
-// //             Sign Up
-// //           </Link> */}
-// //         </div>    
-
-// //         {/* Mobile Menu Button */}
-// //         <button
-// //           onClick={() => setIsMenuOpen(!isMenuOpen)}
-// //           className="text-2xl text-slate-700 md:hidden"
-// //           aria-label="Toggle menu"
-// //           aria-expanded={isMenuOpen}
-// //         >
-// //           {isMenuOpen ? "✕" : "☰"}
-// //         </button>
-// //       </nav>
-
-// //       {/* Mobile Navigation */}
-// //       {isMenuOpen && (
-// //         <div className="border-t bg-white px-6 py-4 md:hidden">
-
-// //           <div className="flex flex-col gap-4">
-// //             {navLinks.map((link) => (
-// //               <NavLink
-// //                 key={link.path}
-// //                 to={link.path}
-// //                 onClick={() => setIsMenuOpen(false)}
-// //                 className={({ isActive }) =>
-// //                   `rounded-md px-3 py-2 text-sm font-medium ${
-// //                     isActive
-// //                       ? "bg-blue-50 text-blue-600"
-// //                       : "text-slate-700 hover:bg-slate-50"
-// //                   }`
-// //                 }
-// //               >
-// //                 {link.name}
-// //               </NavLink>
-// //             ))}
-
-// //             {/* Mobile Login */}
-// //             <Link
-// //               to="/login"
-// //               onClick={() => setIsMenuOpen(false)}
-// //               className="rounded-md px-3 py-2 text-sm font-medium text-blue-600"
-// //             >
-// //               Login
-// //             </Link>
-
-// //             {/* Mobile Signup */}
-// //             <Link
-// //               to="/signup"
-// //               onClick={() => setIsMenuOpen(false)}
-// //               className="rounded-lg bg-blue-600 px-4 py-2.5 text-center font-medium text-white hover:bg-blue-700"
-// //             >
-// //               Sign Up
-// //             </Link>
-// //           </div>
-
-// //         </div>
-// //       )}
-// //     </header>
-// //   );
-// // }
-
-// // export default Header;                                 

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bf-bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="120" fill="url(#bf-bg)" />
+
+  <!-- Antennae -->
+  <line x1="240" y1="180" x2="215" y2="120" stroke="white" stroke-width="14" stroke-linecap="round" />
+  <circle cx="212" cy="112" r="18" fill="white" />
+
+  <line x1="272" y1="180" x2="297" y2="120" stroke="white" stroke-width="14" stroke-linecap="round" />
+  <circle cx="300" cy="112" r="18" fill="white" />
+
+  <!-- Upper wings -->
+  <path
+    d="M240 240 C 200 150, 100 130, 70 190 C 50 235, 90 300, 170 310 C 215 315, 240 285, 240 240 Z"
+    fill="white"
+  />
+  <path
+    d="M272 240 C 312 150, 412 130, 442 190 C 462 235, 422 300, 342 310 C 297 315, 272 285, 272 240 Z"
+    fill="white"
+  />
+
+  <!-- Lower wings -->
+  <path
+    d="M240 285 C 220 340, 155 400, 120 380 C 90 360, 130 315, 185 305 C 215 300, 235 290, 240 285 Z"
+    fill="white"
+  />
+  <path
+    d="M272 285 C 292 340, 357 400, 392 380 C 422 360, 382 315, 327 305 C 297 300, 277 290, 272 285 Z"
+    fill="white"
+  />
+
+  <!-- Wing dots -->
+  <circle cx="155" cy="225" r="18" fill="url(#bf-bg)" />
+  <circle cx="357" cy="225" r="18" fill="url(#bf-bg)" />
+  <circle cx="180" cy="350" r="11" fill="url(#bf-bg)" />
+  <circle cx="332" cy="350" r="11" fill="url(#bf-bg)" />
+
+  <!-- Body -->
+  <ellipse cx="256" cy="280" rx="14" ry="75" fill="white" />
+
+  <!-- Head -->
+  <circle cx="256" cy="200" r="20" fill="white" />
+</svg>

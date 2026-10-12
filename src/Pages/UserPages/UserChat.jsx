@@ -8,7 +8,7 @@ import backgroundImage from "../../assets/Image-2026-10-06-23.04.13.jpeg"
 
 import { UserProfile } from '../../Store/UserAuth/UserAuth';
 
-import { MyChat, GetMessage, SendMessage } from '../../Store/ChatAuth/ChatAuth';
+import { MyChat, GetMessage, SendMessage , DeleteMessage } from '../../Store/ChatAuth/ChatAuth';
 
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
@@ -100,6 +100,7 @@ const ChatPage = () => {
     pressTimer.current = setTimeout(() => {
       longPressTriggered.current = true;
       setSelectedMsg(msg);
+      
       if (navigator.vibrate) navigator.vibrate(30);
     }, LONG_PRESS_DURATION);
   };
@@ -122,7 +123,7 @@ const ChatPage = () => {
   const closeMenu = () => setSelectedMsg(null);
 
   // ===== Delete logic =====
-  const handleDelete = (scope) => {
+  const handleDelete = async (scope) => {
     // scope: 'me' | 'everyone'
     if (!selectedMsg || !selectedChat) return;
 
@@ -131,21 +132,32 @@ const ChatPage = () => {
       closeMenu();
       return;
     }
+    try {
+      
+      
+      const response = await DeleteMessage(selectedChat.conversationId,selectedMsg.id,scope);
+      if(response.success){
+          //  toast.success("Message Delete ")
+          toast.success(
+          scope === 'everyone'
+          ? 'Deleted for everyone'
+          : 'Deleted for you'
+          );
+          
+          // setMessages((prev) => ({
+          //   ...prev,
+          //   [selectedChat.conversationId]: (prev[selectedChat.conversationId] || [])
+          //   .filter((m) => m.id !== selectedMsg.id),
+          //   }));
+      }
 
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
     // TODO: call your backend delete API here
     // await DeleteMessage(selectedMsg.id, scope);
 
-    setMessages((prev) => ({
-      ...prev,
-      [selectedChat.conversationId]: (prev[selectedChat.conversationId] || [])
-        .filter((m) => m.id !== selectedMsg.id),
-    }));
-
-    toast.success(
-      scope === 'everyone'
-        ? 'Deleted for everyone'
-        : 'Deleted for you'
-    );
+  
     closeMenu();
   };
 

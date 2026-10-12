@@ -46,9 +46,8 @@ const GetMessage = async (conversationid) => {
 // Delete A Message 
 const DeleteMessage = async (conversationId,messageId, deleteFor) => {
 
-    const response = await API.delete(`/api/v1/message/${conversationId}/${messageId}`, { deleteFor });
-
-    console.log(response.data);
+    const response = await API.delete(`/api/v1/message/${conversationId}/${messageId}`, { data : {  deleteFor  } });
+    
     return response.data;
 }
 

@@ -3,7 +3,7 @@ import ButterflyIcon from "./ButterflyIcon";
 
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, MessageCircle, ChevronDown, User, Settings, Pencil, LogOut, Search } from "lucide-react";
+import { Bell, MessageCircle, Send ,ChevronDown, User, Settings, Pencil, LogOut, Search } from "lucide-react";
 import { UserProfile, UserLogOut } from "../../../Store/UserAuth/UserAuth";
 import toast from "react-hot-toast";
 
@@ -229,6 +229,14 @@ function Header() {
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
+            </button>
+            {/*  Message   */}
+            <button
+              onClick={() => navigate("/chatpage")}
+              className="p-2 rounded-lg text-slate-200 hover:bg-slate-800 transition"
+              aria-label="Search"
+            >
+              < Send className="w-5 h-5" />
             </button>
 
             {/* Menu toggle */}

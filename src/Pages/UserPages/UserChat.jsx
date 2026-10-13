@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   MessageCircle, Users, LogOut, UserX,
-  X, Send, Menu, MoreVertical, PanelLeftClose, PanelLeftOpen, Trash2
+  X, Send, Menu, MoreVertical, PanelLeftClose, PanelLeftOpen, Trash2, Search
 } from 'lucide-react';
 
 import backgroundImage from "../../assets/Image-2026-10-06-23.04.13.jpeg"
@@ -14,6 +14,27 @@ import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 
 const ChatPage = () => {
+
+
+  const Spinner = ({ className = 'w-8 h-8' }) => (
+  <svg
+    className={`animate-spin ${className}`}
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12" cy="12" r="10"
+      stroke="currentColor" strokeWidth="4"
+    />
+    <path
+      className="opacity-90"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+    />
+  </svg>
+);
 
   const [selectedChat, setSelectedChat] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -33,6 +54,8 @@ const ChatPage = () => {
   const longPressTriggered = useRef(false);
 
   const LONG_PRESS_DURATION = 500;
+  const [Loading , setLoading ] = useState(null);
+
 
   // Fetch user + chats
   useEffect(() => {
@@ -125,6 +148,7 @@ const ChatPage = () => {
   // ===== Delete logic =====
   const handleDelete = async (scope) => {
     // scope: 'me' | 'everyone'
+    setLoading(scope)
     if (!selectedMsg || !selectedChat) return;
 
     // Only own messages can be deleted for everyone
@@ -153,6 +177,8 @@ const ChatPage = () => {
 
     } catch (error) {
       toast.error(error.response.data.message)
+    }finally{
+       setLoading(null)
     }
     // TODO: call your backend delete API here
     // await DeleteMessage(selectedMsg.id, scope);
@@ -551,8 +577,33 @@ const ChatPage = () => {
               overflow-hidden
               animate-modal-in
             "
-          >
-            {/* Header */}
+            >
+
+
+            { Loading ? (
+
+            <div className="flex flex-col items-center-center px-8 py-14 animate-backdrop-in">
+
+              {/* Big spinner */}
+              <div className="relative">
+              <Spinner className="w-8 h-6 text-purple-400" />
+              </div>
+
+              {/* Label */}
+              <p className="text-white text-sm font-medium mt-6">
+              {Loading === 'everyone'
+              ? 'Deleting for everyone…'
+              : 'Deleting for you…'}
+              </p>
+
+              <p className="text-white/40 text-xs mt-1.5">
+              Please wait a moment
+              </p>
+            </div>
+            )  : (
+            
+            <div>
+              {/* Header */}
             <div className="relative px-6 pt-5 pb-3">
               <h3 className="text-white text-base font-semibold text-center">
                 Delete message?
@@ -627,8 +678,12 @@ const ChatPage = () => {
               >
                 Cancel
               </button>
+            </div> 
             </div>
-          </div>
+
+            )};
+
+          </div>    
         </div>
       )}
     </div>

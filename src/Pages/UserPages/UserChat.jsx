@@ -57,6 +57,14 @@ const ChatPage = () => {
 
   const LONG_PRESS_DURATION = 500;
   const [Loading , setLoading ] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
+  
+
+
+
+
+ 
+  
 
 
   // Fetch user + chats
@@ -97,6 +105,51 @@ const ChatPage = () => {
     fetchData();
   }, []);
 
+
+  // User Status Checing 
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const handleContactStatus = ({ userId, isOnline }) => {
+        setOnlineUsers((prev) => {
+            const next = new Set(prev);
+
+            if (isOnline) {
+                next.add(String(userId));
+            } else {
+                next.delete(String(userId));
+            }
+
+            return next;
+        });
+    };
+    socket.on("contact_status", handleContactStatus);
+
+    const fetchContactStatuses = () => {
+        socket.emit("get_contact_statuses", (response) => {
+            if (!response?.success) return;
+
+            setOnlineUsers(
+                new Set(
+                    response.statuses
+                        .filter((status) => status.isOnline)
+                        .map((status) => String(status.userId))
+                )
+            );
+        });
+    };
+
+    socket.on("connect", fetchContactStatuses);
+
+    if (socket.connected) {
+        fetchContactStatuses();
+    }
+
+    return () => {
+        socket.off("contact_status", handleContactStatus);
+        socket.off("connect", fetchContactStatuses);
+    };
+}, [currentUserId]);
   
   // Socket for real time conversation
   // Socket for real time Chat
@@ -185,6 +238,7 @@ useEffect(() => {
         socket.emit("join_conversation", conversationId);
     };
 
+    // Trace of Received messages 
     const handleReceiveMessage = (msg) => {
         const senderId =
             typeof msg.sender === "object" && msg.sender !== null
@@ -243,6 +297,7 @@ useEffect(() => {
 }, [currentUserId, selectedChat?.conversationId]);
 
 
+  // There  is Quick replay messages 
 
   const quickReplies = [
     { emoji: '👋', text: 'Say Hello' },
@@ -250,7 +305,9 @@ useEffect(() => {
     { emoji: '📅', text: 'Meet up soon?' },
   ];
 
+  // Stores currentMessages
   const currentMessages = selectedChat ? messages[selectedChat.conversationId] || [] : [];
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -457,43 +514,7 @@ const sendMessage = (text) => {
 };
 
 
-  // const sendMessage = async (text) => {
-  //   const clean = text.trim();
 
-  //   if (!clean || !selectedChat) return;
-
-  //   try {
-  //     const result = await SendMessage(clean, selectedChat.conversationId);
-  //     const msg = result.data;
-
-  //     const senderId =
-  //       typeof msg.sender === "object" && msg.sender !== null
-  //         ? msg.sender._id
-  //         : msg.sender;
-
-  //     const newMessage = {
-  //       id: msg._id,
-  //       from: String(senderId) === String(currentUserId) ? "me" : "other",
-  //       text: msg.content,
-  //       time: new Date(msg.createdAt).toLocaleTimeString([], {
-  //         hour: "2-digit",
-  //         minute: "2-digit",
-  //       }),
-  //     };
-
-  //     setMessages((prev) => ({
-  //       ...prev,
-  //       [selectedChat.conversationId]: [
-  //         ...(prev[selectedChat.conversationId] || []),
-  //         newMessage,
-  //       ],
-  //     }));
-
-  //   } catch (error) {
-  //     toast.error("Failed to send message");
-  //   }
-  // };
-  
 
   const handleQuickReply = (text) => sendMessage(text);
 
@@ -507,7 +528,12 @@ const sendMessage = (text) => {
 
   // ===== Derived: is the selected message mine? =====
   const isOwnMessage = selectedMsg?.from === 'me' && selectedMsg?.text  !== "This message was deleted";
- 
+
+
+// const [ isOnline, setIsOnline ] =  useState(false);
+
+
+
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative flex items-center justify-center p-0 md:p-6"
@@ -535,14 +561,14 @@ const sendMessage = (text) => {
           <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
             <div className="relative">
               <div className="w-11 h-11 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/30">
-                J
+                { user.username?.charAt(0).toUpperCase() || "?"}
               </div>
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
+              {/* <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full  bg-emerald-400  border-2 border-purple-900"></span> */}
             </div>
 
             <div className="flex-1 min-w-0">
               <p className="text-white font-semibold text-sm truncate">{user.username}</p>
-              <p className="text-emerald-300 text-xs">Online</p>
+              <p className="text-emerald-300 text-xs">{user.email}</p>
             </div>
 
             <button className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition" aria-label="Logout">
@@ -566,11 +592,14 @@ const sendMessage = (text) => {
               const isActive = selectedChat?.id === contact.id;
               const lastMsg = messages[contact.conversationId]?.slice(-1)[0];
 
+              const isOnline = onlineUsers.has(String(contact.id));
+           
+            
               const id = contact.id;
               const username = contact.username;
               const avatar = contact.username?.charAt(0).toUpperCase() || "?";
               const lastMessage = contact.lastMessage || "";
-
+             
               return (
                 <button
                   key={id}
@@ -587,13 +616,15 @@ const sendMessage = (text) => {
                     <div className="w-10 h-10 rounded-full bg-slate-500/50 flex items-center justify-center text-white font-semibold">
                       {avatar}
                     </div>
-                    {contact.status === 'online' && (
+                    { isOnline && (
                       <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
                     )}
+
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium truncate">{username}</p>
+                
                     {lastMsg && (
                       <p className="text-white/50 text-xs truncate">{lastMessage}</p>
                     )}
@@ -628,17 +659,25 @@ const sendMessage = (text) => {
             </button>
 
             {selectedChat ? (
+
               <>
                 <div className="relative" style={{ flexShrink: 0 }}>
                   <div className="w-10 h-10 rounded-full bg-slate-500/50 flex items-center justify-center text-white font-semibold">
+
                     {selectedChat.username?.charAt(0).toUpperCase() || "?"}
                   </div>
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
+
+                  {  onlineUsers.has(String(selectedChat?.id)) ? (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
+                  ) : (
+                    // <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-gray-700 border-2 border-purple-300"></span>
+                    <></>
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-semibold text-sm truncate">{selectedChat.username}</p>
-                  <p className="text-emerald-300 text-xs">Online</p>
+                  <p className="text-emerald-300 text-xs"> { onlineUsers.has(String(selectedChat?.id)) ?  "Online" : (<h5 className=' text-blue-300 '>Offline</h5>) }</p>
                 </div>
 
                 <button className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition">

@@ -12,6 +12,8 @@ import { MyChat, GetMessage, SendMessage , DeleteMessage } from '../../Store/Cha
 
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
+import socket from "../../Store/ChatAuth/Socket";
+
 
 const ChatPage = () => {
 
@@ -65,6 +67,7 @@ const ChatPage = () => {
         const userId = result.data._id;
         setCurrentUserId(userId);
         setUser(result.data);
+        
 
         const response = await MyChat();
 
@@ -93,6 +96,153 @@ const ChatPage = () => {
 
     fetchData();
   }, []);
+
+  
+  // Socket for real time conversation
+  // Socket for real time Chat
+useEffect(() => {
+    if (!currentUserId) return;
+
+    const handleMessageUpdated = ({
+        conversationId,
+        messageId,
+        content,
+        isDeletedForEveryone,
+    }) => {
+        if (!isDeletedForEveryone) return;
+
+        setMessages((prev) => {
+            const existing = prev[conversationId] || [];
+
+            return {
+                ...prev,
+                [conversationId]: existing.map((message) =>
+                    String(message.id) === String(messageId)
+                        ? {
+                              ...message,
+                              text: content,
+                              isDeletedForEveryone: true,
+                          }
+                        : message
+                ),
+            };
+        });
+
+        setSelectedMsg((prev) =>
+            prev && String(prev.id) === String(messageId)
+                ? {
+                      ...prev,
+                      text: content,
+                      isDeletedForEveryone: true,
+                  }
+                : prev
+        );
+    };
+
+    const handleMessageDeletedForMe = ({
+        conversationId,
+        messageId,
+    }) => {
+        setMessages((prev) => {
+            const existing = prev[conversationId] || [];
+
+            return {
+                ...prev,
+                [conversationId]: existing.filter(
+                    (message) =>
+                        String(message.id) !== String(messageId)
+                ),
+            };
+        });
+
+        setSelectedMsg((prev) =>
+            prev && String(prev.id) === String(messageId)
+                ? null
+                : prev
+        );
+    };
+
+    socket.on("message_updated", handleMessageUpdated);
+    socket.on("message_deleted_for_me", handleMessageDeletedForMe);
+
+    if (!socket.connected) {
+        socket.connect();
+    }
+
+    return () => {
+        socket.off("message_updated", handleMessageUpdated);
+        socket.off("message_deleted_for_me", handleMessageDeletedForMe);
+        socket.disconnect();
+    };
+}, [currentUserId]);
+
+useEffect(() => {
+    const conversationId = selectedChat?.conversationId;
+
+    if (!currentUserId || !conversationId) return;
+
+    const joinConversation = () => {
+        socket.emit("join_conversation", conversationId);
+    };
+
+    const handleReceiveMessage = (msg) => {
+        const senderId =
+            typeof msg.sender === "object" && msg.sender !== null
+                ? msg.sender._id
+                : msg.sender;
+
+        const newMessage = {
+            id: msg._id,
+            from:
+                String(senderId) === String(currentUserId)
+                    ? "me"
+                    : "other",
+            text: msg.content,
+            time: new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            }),
+        };
+
+        setMessages((prev) => {
+            const existing = prev[conversationId] || [];
+
+            if (
+                existing.some(
+                    (message) =>
+                        String(message.id) === String(newMessage.id)
+                )
+            ) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                [conversationId]: [...existing, newMessage],
+            };
+        });
+    };
+
+    const handleSocketError = ({ message } = {}) => {
+        toast.error(message || "Unable to process chat request");
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
+    socket.on("connect", joinConversation);
+    socket.on("socket_error", handleSocketError);
+
+    if (socket.connected) {
+        joinConversation();
+    }
+
+    return () => {
+        socket.off("connect", joinConversation);
+        socket.off("receive_message", handleReceiveMessage);
+        socket.off("socket_error", handleSocketError);
+    };
+}, [currentUserId, selectedChat?.conversationId]);
+
+
 
   const quickReplies = [
     { emoji: '👋', text: 'Say Hello' },
@@ -146,46 +296,72 @@ const ChatPage = () => {
   const closeMenu = () => setSelectedMsg(null);
 
   // ===== Delete logic =====
-  const handleDelete = async (scope) => {
-    // scope: 'me' | 'everyone'
-    setLoading(scope)
-    if (!selectedMsg || !selectedChat) return;
+  
+const handleDelete = async (scope) => {
+  if (!selectedMsg || !selectedChat) return;
 
-    // Only own messages can be deleted for everyone
-    if (scope === 'everyone' && selectedMsg.from !== 'me') {
-      closeMenu();
+  if (scope === "everyone" && selectedMsg.from !== "me") {
+    closeMenu();
+    return;
+  }
+
+  const conversationId = selectedChat.conversationId;
+  const messageId = selectedMsg.id;
+
+  setLoading(scope);
+
+  try {
+    const response = await DeleteMessage(
+      conversationId,
+      messageId,
+      scope
+    );
+
+    if (!response.success) {
+      toast.error("Unable to delete message");
       return;
     }
-    try {
-      
-      
-      const response = await DeleteMessage(selectedChat.conversationId,selectedMsg.id,scope);
-      if(response.success){
-          //  toast.success("Message Delete ")
-          toast.success(
-          scope === 'everyone'
-          ? 'Deleted for everyone'
-          : 'Deleted for you'
-          );
-          
-          // setMessages((prev) => ({
-          //   ...prev,
-          //   [selectedChat.conversationId]: (prev[selectedChat.conversationId] || [])
-          //   .filter((m) => m.id !== selectedMsg.id),
-          //   }));
+
+    setMessages((prev) => {
+      const existing = prev[conversationId] || [];
+
+      if (scope === "me") {
+        return {
+          ...prev,
+          [conversationId]: existing.filter(
+            (message) => String(message.id) !== String(messageId)
+          ),
+        };
       }
 
-    } catch (error) {
-      toast.error(error.response.data.message)
-    }finally{
-       setLoading(null)
-    }
-    // TODO: call your backend delete API here
-    // await DeleteMessage(selectedMsg.id, scope);
+      return {
+        ...prev,
+        [conversationId]: existing.map((message) =>
+          String(message.id) === String(messageId)
+            ? {
+                ...message,
+                text: "This message was deleted",
+                isDeletedForEveryone: true,
+              }
+            : message
+        ),
+      };
+    });
 
-  
+    setSelectedMsg(null);
+
+    toast.success(
+      scope === "everyone"
+        ? "Deleted for everyone"
+        : "Deleted for you"
+    );
+  } catch {
+    toast.error("Unable to delete message");
+  } finally {
+    setLoading(null);
     closeMenu();
-  };
+  }
+};
 
   // ===== Chat selection / send =====
   const handleSelectChat = async (contact) => {
@@ -227,43 +403,97 @@ const ChatPage = () => {
     sendMessage(input);
     setInput('');
   };
+  
 
-  const sendMessage = async (text) => {
+  // Send Message  Function
+
+const sendMessage = (text) => {
     const clean = text.trim();
 
     if (!clean || !selectedChat) return;
 
-    try {
-      const result = await SendMessage(clean, selectedChat.conversationId);
-      const msg = result.data;
-
-      const senderId =
-        typeof msg.sender === "object" && msg.sender !== null
-          ? msg.sender._id
-          : msg.sender;
-
-      const newMessage = {
-        id: msg._id,
-        from: String(senderId) === String(currentUserId) ? "me" : "other",
-        text: msg.content,
-        time: new Date(msg.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-
-      setMessages((prev) => ({
-        ...prev,
-        [selectedChat.conversationId]: [
-          ...(prev[selectedChat.conversationId] || []),
-          newMessage,
-        ],
-      }));
-
-    } catch (error) {
-      toast.error("Failed to send message");
+    if (!socket.connected) {
+        toast.error("Real-time connection is unavailable");
+        return;
     }
-  };
+
+    const conversationId = selectedChat.conversationId;
+
+    socket.emit(
+        "send_message",
+        { conversationId, content: clean },
+        (response) => {
+            if (!response?.success) {
+                toast.error(response?.message || "Failed to send message");
+                return;
+            }
+
+            const msg = response.message;
+
+            const newMessage = {
+                id: msg._id,
+                from: "me",
+                text: msg.content,
+                time: new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                }),
+            };
+
+            setMessages((prev) => {
+                const existing = prev[conversationId] || [];
+
+                if (existing.some((message) => message.id === newMessage.id)) {
+                    return prev;
+                }
+
+                return {
+                    ...prev,
+                    [conversationId]: [...existing, newMessage],
+                };
+            });
+        }
+    );
+};
+
+
+  // const sendMessage = async (text) => {
+  //   const clean = text.trim();
+
+  //   if (!clean || !selectedChat) return;
+
+  //   try {
+  //     const result = await SendMessage(clean, selectedChat.conversationId);
+  //     const msg = result.data;
+
+  //     const senderId =
+  //       typeof msg.sender === "object" && msg.sender !== null
+  //         ? msg.sender._id
+  //         : msg.sender;
+
+  //     const newMessage = {
+  //       id: msg._id,
+  //       from: String(senderId) === String(currentUserId) ? "me" : "other",
+  //       text: msg.content,
+  //       time: new Date(msg.createdAt).toLocaleTimeString([], {
+  //         hour: "2-digit",
+  //         minute: "2-digit",
+  //       }),
+  //     };
+
+  //     setMessages((prev) => ({
+  //       ...prev,
+  //       [selectedChat.conversationId]: [
+  //         ...(prev[selectedChat.conversationId] || []),
+  //         newMessage,
+  //       ],
+  //     }));
+
+  //   } catch (error) {
+  //     toast.error("Failed to send message");
+  //   }
+  // };
+  
 
   const handleQuickReply = (text) => sendMessage(text);
 
@@ -276,8 +506,8 @@ const ChatPage = () => {
   };
 
   // ===== Derived: is the selected message mine? =====
-  const isOwnMessage = selectedMsg?.from === 'me';
-
+  const isOwnMessage = selectedMsg?.from === 'me' && selectedMsg?.text  !== "This message was deleted";
+ 
   return (
     <div
       className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative flex items-center justify-center p-0 md:p-6"
@@ -585,7 +815,7 @@ const ChatPage = () => {
             <div className="flex flex-col items-center-center px-8 py-14 animate-backdrop-in">
 
               {/* Big spinner */}
-              <div className="relative">
+              <div className="relative justify-center">
               <Spinner className="w-8 h-6 text-purple-400" />
               </div>
 

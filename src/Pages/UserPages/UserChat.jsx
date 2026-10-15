@@ -676,6 +676,7 @@ const sendMessage = (text) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
+                  { console.log(onlineUsers.has(String(selectedChat?.id))) }
                   <p className="text-white font-semibold text-sm truncate">{selectedChat.username}</p>
                   <p className="text-emerald-300 text-xs"> { onlineUsers.has(String(selectedChat?.id)) ?  "Online" : (<h5 className=' text-blue-300 '>Offline</h5>) }</p>
                 </div>

@@ -153,81 +153,166 @@ const ChatPage = () => {
   
   // Socket for real time conversation
   // Socket for real time Chat
-useEffect(() => {
+// useEffect(() => {
+//     if (!currentUserId) return;
+
+//     const handleMessageUpdated = ({
+//         conversationId,
+//         messageId,
+//         content,
+//         isDeletedForEveryone,
+//     }) => {
+//         if (!isDeletedForEveryone) return;
+
+//         setMessages((prev) => {
+//             const existing = prev[conversationId] || [];
+
+//             return {
+//                 ...prev,
+//                 [conversationId]: existing.map((message) =>
+//                     String(message.id) === String(messageId)
+//                         ? {
+//                               ...message,
+//                               text: content,
+//                               isDeletedForEveryone: true,
+//                           }
+//                         : message
+//                 ),
+//             };
+//         });
+
+//         setSelectedMsg((prev) =>
+//             prev && String(prev.id) === String(messageId)
+//                 ? {
+//                       ...prev,
+//                       text: content,
+//                       isDeletedForEveryone: true,
+//                   }
+//                 : prev
+//         );
+//     };
+
+//     const handleMessageDeletedForMe = ({
+//         conversationId,
+//         messageId,
+//     }) => {
+//         setMessages((prev) => {
+//             const existing = prev[conversationId] || [];
+
+//             return {
+//                 ...prev,
+//                 [conversationId]: existing.filter(
+//                     (message) =>
+//                         String(message.id) !== String(messageId)
+//                 ),
+//             };
+//         });
+
+//         setSelectedMsg((prev) =>
+//             prev && String(prev.id) === String(messageId)
+//                 ? null
+//                 : prev
+//         );
+//     };
+
+//     socket.on("message_updated", handleMessageUpdated);
+//     socket.on("message_deleted_for_me", handleMessageDeletedForMe);
+
+//     if (!socket.connected) {
+//         socket.connect();
+//     }
+
+//     return () => {
+//         socket.off("message_updated", handleMessageUpdated);
+//         socket.off("message_deleted_for_me", handleMessageDeletedForMe);
+//         socket.disconnect();
+//     };
+// }, [currentUserId]);
+
+
+  // Listen for contact status updates and fetch their initial statuses.
+  useEffect(() => {
     if (!currentUserId) return;
 
-    const handleMessageUpdated = ({
-        conversationId,
-        messageId,
-        content,
-        isDeletedForEveryone,
-    }) => {
-        if (!isDeletedForEveryone) return;
+    let isMounted = true;
 
-        setMessages((prev) => {
-            const existing = prev[conversationId] || [];
+    // Track status events received while an initial status request is pending.
+    const statusUpdates = new Map();
 
-            return {
-                ...prev,
-                [conversationId]: existing.map((message) =>
-                    String(message.id) === String(messageId)
-                        ? {
-                              ...message,
-                              text: content,
-                              isDeletedForEveryone: true,
-                          }
-                        : message
-                ),
-            };
-        });
+    // Update the Set without mutating the existing React state.
+    const updateContactStatus = (userId, isOnline) => {
+      if (!isMounted) return;
 
-        setSelectedMsg((prev) =>
-            prev && String(prev.id) === String(messageId)
-                ? {
-                      ...prev,
-                      text: content,
-                      isDeletedForEveryone: true,
-                  }
-                : prev
-        );
+      const normalizedId = String(userId);
+
+      setOnlineUsers((previousUsers) => {
+        const updatedUsers = new Set(previousUsers);
+
+        if (isOnline) {
+          updatedUsers.add(normalizedId);
+        } else {
+          updatedUsers.delete(normalizedId);
+        }
+
+        return updatedUsers;
+      });
     };
 
-    const handleMessageDeletedForMe = ({
-        conversationId,
-        messageId,
-    }) => {
-        setMessages((prev) => {
-            const existing = prev[conversationId] || [];
+    // Receive live online/offline changes from the backend.
+    const handleContactStatus = ({ userId, isOnline } = {}) => {
+      if (!userId) return;
 
-            return {
-                ...prev,
-                [conversationId]: existing.filter(
-                    (message) =>
-                        String(message.id) !== String(messageId)
-                ),
-            };
-        });
-
-        setSelectedMsg((prev) =>
-            prev && String(prev.id) === String(messageId)
-                ? null
-                : prev
-        );
+      // Remember the latest event so an older response cannot overwrite it.
+      statusUpdates.set(String(userId), isOnline);
+      updateContactStatus(userId, isOnline);
     };
 
-    socket.on("message_updated", handleMessageUpdated);
-    socket.on("message_deleted_for_me", handleMessageDeletedForMe);
+    // Request current statuses whenever the socket connects or reconnects.
+    const fetchContactStatuses = () => {
+      // Clear events from the previous request cycle.
+      statusUpdates.clear();
 
-    if (!socket.connected) {
-        socket.connect();
+      socket.emit("get_contact_statuses", (response) => {
+        if (!isMounted || !response?.success) return;
+
+        // Build the initial online-user list from the backend response.
+        const initialOnlineUsers = new Set(
+          response.statuses
+            .filter((status) => status.isOnline === true)
+            .map((status) => String(status.userId))
+        );
+
+        // Apply any newer live events received while waiting for the response.
+        statusUpdates.forEach((isOnline, userId) => {
+          if (isOnline) {
+            initialOnlineUsers.add(userId);
+          } else {
+            initialOnlineUsers.delete(userId);
+          }
+        });
+
+        setOnlineUsers(initialOnlineUsers);
+      });
+    };
+
+    // Register listeners before requesting statuses.
+    socket.on("contact_status", handleContactStatus);
+    socket.on("connect", fetchContactStatuses);
+
+    // If the socket is already connected, request statuses immediately.
+    if (socket.connected) {
+      fetchContactStatuses();
     }
 
     return () => {
-        socket.off("message_updated", handleMessageUpdated);
-        socket.off("message_deleted_for_me", handleMessageDeletedForMe);
-        socket.disconnect();
+      // Prevent state updates after this effect is cleaned up.
+      isMounted = false;
+
+      socket.off("contact_status", handleContactStatus);
+      socket.off("connect", fetchContactStatuses);
     };
-}, [currentUserId]);
+  }, [currentUserId]);
+
 
 useEffect(() => {
     const conversationId = selectedChat?.conversationId;

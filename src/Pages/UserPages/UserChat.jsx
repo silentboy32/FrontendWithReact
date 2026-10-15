@@ -153,165 +153,81 @@ const ChatPage = () => {
   
   // Socket for real time conversation
   // Socket for real time Chat
-// useEffect(() => {
-//     if (!currentUserId) return;
-
-//     const handleMessageUpdated = ({
-//         conversationId,
-//         messageId,
-//         content,
-//         isDeletedForEveryone,
-//     }) => {
-//         if (!isDeletedForEveryone) return;
-
-//         setMessages((prev) => {
-//             const existing = prev[conversationId] || [];
-
-//             return {
-//                 ...prev,
-//                 [conversationId]: existing.map((message) =>
-//                     String(message.id) === String(messageId)
-//                         ? {
-//                               ...message,
-//                               text: content,
-//                               isDeletedForEveryone: true,
-//                           }
-//                         : message
-//                 ),
-//             };
-//         });
-
-//         setSelectedMsg((prev) =>
-//             prev && String(prev.id) === String(messageId)
-//                 ? {
-//                       ...prev,
-//                       text: content,
-//                       isDeletedForEveryone: true,
-//                   }
-//                 : prev
-//         );
-//     };
-
-//     const handleMessageDeletedForMe = ({
-//         conversationId,
-//         messageId,
-//     }) => {
-//         setMessages((prev) => {
-//             const existing = prev[conversationId] || [];
-
-//             return {
-//                 ...prev,
-//                 [conversationId]: existing.filter(
-//                     (message) =>
-//                         String(message.id) !== String(messageId)
-//                 ),
-//             };
-//         });
-
-//         setSelectedMsg((prev) =>
-//             prev && String(prev.id) === String(messageId)
-//                 ? null
-//                 : prev
-//         );
-//     };
-
-//     socket.on("message_updated", handleMessageUpdated);
-//     socket.on("message_deleted_for_me", handleMessageDeletedForMe);
-
-//     if (!socket.connected) {
-//         socket.connect();
-//     }
-
-//     return () => {
-//         socket.off("message_updated", handleMessageUpdated);
-//         socket.off("message_deleted_for_me", handleMessageDeletedForMe);
-//         socket.disconnect();
-//     };
-// }, [currentUserId]);
-
-
-  // Listen for contact status updates and fetch their initial statuses.
-  useEffect(() => {
+useEffect(() => {
     if (!currentUserId) return;
 
-    let isMounted = true;
+    const handleMessageUpdated = ({
+        conversationId,
+        messageId,
+        content,
+        isDeletedForEveryone,
+    }) => {
+        if (!isDeletedForEveryone) return;
 
-    // Track status events received while an initial status request is pending.
-    const statusUpdates = new Map();
+        setMessages((prev) => {
+            const existing = prev[conversationId] || [];
 
-    // Update the Set without mutating the existing React state.
-    const updateContactStatus = (userId, isOnline) => {
-      if (!isMounted) return;
-
-      const normalizedId = String(userId);
-
-      setOnlineUsers((previousUsers) => {
-        const updatedUsers = new Set(previousUsers);
-
-        if (isOnline) {
-          updatedUsers.add(normalizedId);
-        } else {
-          updatedUsers.delete(normalizedId);
-        }
-
-        return updatedUsers;
-      });
-    };
-
-    // Receive live online/offline changes from the backend.
-    const handleContactStatus = ({ userId, isOnline } = {}) => {
-      if (!userId) return;
-
-      // Remember the latest event so an older response cannot overwrite it.
-      statusUpdates.set(String(userId), isOnline);
-      updateContactStatus(userId, isOnline);
-    };
-
-    // Request current statuses whenever the socket connects or reconnects.
-    const fetchContactStatuses = () => {
-      // Clear events from the previous request cycle.
-      statusUpdates.clear();
-
-      socket.emit("get_contact_statuses", (response) => {
-        if (!isMounted || !response?.success) return;
-
-        // Build the initial online-user list from the backend response.
-        const initialOnlineUsers = new Set(
-          response.statuses
-            .filter((status) => status.isOnline === true)
-            .map((status) => String(status.userId))
-        );
-
-        // Apply any newer live events received while waiting for the response.
-        statusUpdates.forEach((isOnline, userId) => {
-          if (isOnline) {
-            initialOnlineUsers.add(userId);
-          } else {
-            initialOnlineUsers.delete(userId);
-          }
+            return {
+                ...prev,
+                [conversationId]: existing.map((message) =>
+                    String(message.id) === String(messageId)
+                        ? {
+                              ...message,
+                              text: content,
+                              isDeletedForEveryone: true,
+                          }
+                        : message
+                ),
+            };
         });
 
-        setOnlineUsers(initialOnlineUsers);
-      });
+        setSelectedMsg((prev) =>
+            prev && String(prev.id) === String(messageId)
+                ? {
+                      ...prev,
+                      text: content,
+                      isDeletedForEveryone: true,
+                  }
+                : prev
+        );
     };
 
-    // Register listeners before requesting statuses.
-    socket.on("contact_status", handleContactStatus);
-    socket.on("connect", fetchContactStatuses);
+    const handleMessageDeletedForMe = ({
+        conversationId,
+        messageId,
+    }) => {
+        setMessages((prev) => {
+            const existing = prev[conversationId] || [];
 
-    // If the socket is already connected, request statuses immediately.
-    if (socket.connected) {
-      fetchContactStatuses();
+            return {
+                ...prev,
+                [conversationId]: existing.filter(
+                    (message) =>
+                        String(message.id) !== String(messageId)
+                ),
+            };
+        });
+
+        setSelectedMsg((prev) =>
+            prev && String(prev.id) === String(messageId)
+                ? null
+                : prev
+        );
+    };
+
+    socket.on("message_updated", handleMessageUpdated);
+    socket.on("message_deleted_for_me", handleMessageDeletedForMe);
+
+    if (!socket.connected) {
+        socket.connect();
     }
 
     return () => {
-      // Prevent state updates after this effect is cleaned up.
-      isMounted = false;
-
-      socket.off("contact_status", handleContactStatus);
-      socket.off("connect", fetchContactStatuses);
+        socket.off("message_updated", handleMessageUpdated);
+        socket.off("message_deleted_for_me", handleMessageDeletedForMe);
+        socket.disconnect();
     };
-  }, [currentUserId]);
+}, [currentUserId]);
 
 
 useEffect(() => {
@@ -699,7 +615,7 @@ const sendMessage = (text) => {
                 >
                   <div className="relative" style={{ flexShrink: 0 }}>
                     <div className="w-10 h-10 rounded-full bg-slate-500/50 flex items-center justify-center text-white font-semibold">
-                      {avatar}{console.log(isOnline)}
+                      {avatar}
                     </div>
                     { isOnline && (
                       <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
@@ -761,7 +677,7 @@ const sendMessage = (text) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  { console.log(onlineUsers.has(String(selectedChat?.id))) }
+    
                   <p className="text-white font-semibold text-sm truncate">{selectedChat.username}</p>
                   <p className="text-emerald-300 text-xs"> { onlineUsers.has(String(selectedChat?.id)) ?  "Online" : (<h5 className=' text-blue-300 '>Offline</h5>) }</p>
                 </div>

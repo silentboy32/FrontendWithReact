@@ -17,7 +17,7 @@ import Profile from "../Pages/UserPages/UserProfile";
 import ChatPage from "../Pages/UserPages/UserChat";
 import ProtectedRoute from "../Store/ProtectedRoute/ProtectedRoute";
 import SearchPage from "../Pages/ComonPages/SearchPage";
-
+import Notification from "../Pages/UserPages/Notification";
 
 const Router = createBrowserRouter([
     {
@@ -96,6 +96,16 @@ const Router = createBrowserRouter([
             {
                 path: "/searchpage",
                 element: < SearchPage />
+            }
+        ]
+    },
+    {
+        element: <ProtectedRoute />,
+
+        children: [
+            {
+                path: "/notification",
+                element: <   Notification />
             }
         ]
     }

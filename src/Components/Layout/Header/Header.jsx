@@ -86,6 +86,7 @@ function Header() {
 
             {/* Notification */}
             <button
+              onClick={() => navigate("/notification")}
               className="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200 group"
               aria-label="Notifications"
             >

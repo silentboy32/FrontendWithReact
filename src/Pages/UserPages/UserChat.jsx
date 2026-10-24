@@ -112,7 +112,29 @@ const ChatPage = () => {
   useEffect(() => {
     if (!currentUserId) return;
 
-    const handleContactStatus = ({ userId, isOnline }) => {
+    // const handleContactStatus = ({ userId, isOnline }) => {
+    //   setOnlineUsers((prev) => {
+    //     const next = new Set(prev);
+
+    //     if (isOnline) {
+    //       next.add(String(userId));
+    //     } else {
+    //       next.delete(String(userId));
+    //     }
+
+    //     return next;
+    //   });
+    // };
+
+
+    const handleContactStatus = (status = {}) => {
+      const { userId, isOnline } = status;
+
+      // Pause here to inspect the actual event received from the backend.
+      debugger;
+
+      if (userId == null || typeof isOnline !== "boolean") return;
+
       setOnlineUsers((prev) => {
         const next = new Set(prev);
 
@@ -125,6 +147,8 @@ const ChatPage = () => {
         return next;
       });
     };
+
+
     socket.on("contact_status", handleContactStatus);
 
     const fetchContactStatuses = () => {
@@ -140,7 +164,7 @@ const ChatPage = () => {
         );
       });
     };
-
+    
     socket.on("connect", fetchContactStatuses);
 
     if (socket.connected) {
@@ -634,7 +658,7 @@ const ChatPage = () => {
                     <div className="w-10 h-10 rounded-full bg-slate-500/50 flex items-center justify-center text-white font-semibold">
                       {avatar}
                     </div>
-                    { isOnline && (
+                    {isOnline && (
                       <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
                     )}
 

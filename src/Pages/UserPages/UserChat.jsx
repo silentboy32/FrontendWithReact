@@ -9,7 +9,7 @@ import backgroundImage from "../../assets/Image-2026-10-06-23.04.13.jpeg"
 
 import { UserProfile } from '../../Store/UserAuth/UserAuth';
 
-import { MyChat, GetMessage, SendMessage , DeleteMessage } from '../../Store/ChatAuth/ChatAuth';
+import { MyChat, GetMessage, SendMessage, DeleteMessage } from '../../Store/ChatAuth/ChatAuth';
 
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
@@ -20,24 +20,24 @@ const ChatPage = () => {
 
 
   const Spinner = ({ className = 'w-8 h-8' }) => (
-  <svg
-    className={`animate-spin ${className}`}
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <circle
-      className="opacity-25"
-      cx="12" cy="12" r="10"
-      stroke="currentColor" strokeWidth="4"
-    />
-    <path
-      className="opacity-90"
-      fill="currentColor"
-      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-    />
-  </svg>
-);
+    <svg
+      className={`animate-spin ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12" cy="12" r="10"
+        stroke="currentColor" strokeWidth="4"
+      />
+      <path
+        className="opacity-90"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      />
+    </svg>
+  );
 
   const [selectedChat, setSelectedChat] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -57,15 +57,16 @@ const ChatPage = () => {
   const longPressTriggered = useRef(false);
 
   const LONG_PRESS_DURATION = 500;
-  const [Loading , setLoading ] = useState(null);
+  const [Loading, setLoading] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
-  
+
+
+  // console.log(onlineUsers)
 
 
 
 
- 
-  
+
 
 
   // Fetch user + chats
@@ -76,7 +77,7 @@ const ChatPage = () => {
         const userId = result.data._id;
         setCurrentUserId(userId);
         setUser(result.data);
-        
+
 
         const response = await MyChat();
 
@@ -107,180 +108,180 @@ const ChatPage = () => {
   }, []);
 
 
-  // User Status Checing 
+  // User Status Checking 
   useEffect(() => {
     if (!currentUserId) return;
 
     const handleContactStatus = ({ userId, isOnline }) => {
-        setOnlineUsers((prev) => {
-            const next = new Set(prev);
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
 
-            if (isOnline) {
-                next.add(String(userId));
-            } else {
-                next.delete(String(userId));
-            }
+        if (isOnline) {
+          next.add(String(userId));
+        } else {
+          next.delete(String(userId));
+        }
 
-            return next;
-        });
+        return next;
+      });
     };
     socket.on("contact_status", handleContactStatus);
 
     const fetchContactStatuses = () => {
-        socket.emit("get_contact_statuses", (response) => {
-            if (!response?.success) return;
+      socket.emit("get_contact_statuses", (response) => {
+        if (!response?.success) return;
 
-            setOnlineUsers(
-                new Set(
-                    response.statuses
-                        .filter((status) => status.isOnline)
-                        .map((status) => String(status.userId))
-                )
-            );
-        });
+        setOnlineUsers(
+          new Set(
+            response.statuses
+              .filter((status) => status.isOnline)
+              .map((status) => String(status.userId))
+          )
+        );
+      });
     };
 
     socket.on("connect", fetchContactStatuses);
 
     if (socket.connected) {
-        fetchContactStatuses();
+      fetchContactStatuses();
     }
 
     return () => {
-        socket.off("contact_status", handleContactStatus);
-        socket.off("connect", fetchContactStatuses);
+      socket.off("contact_status", handleContactStatus);
+      socket.off("connect", fetchContactStatuses);
     };
-}, [currentUserId]);
-  
+  }, [currentUserId]);
+
   // Socket for real time conversation
   // Socket for real time Chat
-useEffect(() => {
+  useEffect(() => {
     if (!currentUserId) return;
 
     const handleMessageUpdated = ({
-        conversationId,
-        messageId,
-        content,
-        isDeletedForEveryone,
+      conversationId,
+      messageId,
+      content,
+      isDeletedForEveryone,
     }) => {
-        if (!isDeletedForEveryone) return;
+      if (!isDeletedForEveryone) return;
 
-        setMessages((prev) => {
-            const existing = prev[conversationId] || [];
+      setMessages((prev) => {
+        const existing = prev[conversationId] || [];
 
-            return {
-                ...prev,
-                [conversationId]: existing.map((message) =>
-                    String(message.id) === String(messageId)
-                        ? {
-                              ...message,
-                              text: content,
-                              isDeletedForEveryone: true,
-                          }
-                        : message
-                ),
-            };
-        });
+        return {
+          ...prev,
+          [conversationId]: existing.map((message) =>
+            String(message.id) === String(messageId)
+              ? {
+                ...message,
+                text: content,
+                isDeletedForEveryone: true,
+              }
+              : message
+          ),
+        };
+      });
 
-        setSelectedMsg((prev) =>
-            prev && String(prev.id) === String(messageId)
-                ? {
-                      ...prev,
-                      text: content,
-                      isDeletedForEveryone: true,
-                  }
-                : prev
-        );
+      setSelectedMsg((prev) =>
+        prev && String(prev.id) === String(messageId)
+          ? {
+            ...prev,
+            text: content,
+            isDeletedForEveryone: true,
+          }
+          : prev
+      );
     };
 
     const handleMessageDeletedForMe = ({
-        conversationId,
-        messageId,
+      conversationId,
+      messageId,
     }) => {
-        setMessages((prev) => {
-            const existing = prev[conversationId] || [];
+      setMessages((prev) => {
+        const existing = prev[conversationId] || [];
 
-            return {
-                ...prev,
-                [conversationId]: existing.filter(
-                    (message) =>
-                        String(message.id) !== String(messageId)
-                ),
-            };
-        });
+        return {
+          ...prev,
+          [conversationId]: existing.filter(
+            (message) =>
+              String(message.id) !== String(messageId)
+          ),
+        };
+      });
 
-        setSelectedMsg((prev) =>
-            prev && String(prev.id) === String(messageId)
-                ? null
-                : prev
-        );
+      setSelectedMsg((prev) =>
+        prev && String(prev.id) === String(messageId)
+          ? null
+          : prev
+      );
     };
 
     socket.on("message_updated", handleMessageUpdated);
     socket.on("message_deleted_for_me", handleMessageDeletedForMe);
 
     if (!socket.connected) {
-        socket.connect();
+      socket.connect();
     }
 
     return () => {
-        socket.off("message_updated", handleMessageUpdated);
-        socket.off("message_deleted_for_me", handleMessageDeletedForMe);
-        // socket.disconnect();
+      socket.off("message_updated", handleMessageUpdated);
+      socket.off("message_deleted_for_me", handleMessageDeletedForMe);
+      // socket.disconnect();
     };
-}, [currentUserId]);
+  }, [currentUserId]);
 
 
-useEffect(() => {
+  useEffect(() => {
     const conversationId = selectedChat?.conversationId;
 
     if (!currentUserId || !conversationId) return;
 
     const joinConversation = () => {
-        socket.emit("join_conversation", conversationId);
+      socket.emit("join_conversation", conversationId);
     };
 
     // Trace of Received messages 
     const handleReceiveMessage = (msg) => {
-        const senderId =
-            typeof msg.sender === "object" && msg.sender !== null
-                ? msg.sender._id
-                : msg.sender;
+      const senderId =
+        typeof msg.sender === "object" && msg.sender !== null
+          ? msg.sender._id
+          : msg.sender;
 
-        const newMessage = {
-            id: msg._id,
-            from:
-                String(senderId) === String(currentUserId)
-                    ? "me"
-                    : "other",
-            text: msg.content,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            }),
+      const newMessage = {
+        id: msg._id,
+        from:
+          String(senderId) === String(currentUserId)
+            ? "me"
+            : "other",
+        text: msg.content,
+        time: new Date(msg.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      setMessages((prev) => {
+        const existing = prev[conversationId] || [];
+
+        if (
+          existing.some(
+            (message) =>
+              String(message.id) === String(newMessage.id)
+          )
+        ) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [conversationId]: [...existing, newMessage],
         };
-
-        setMessages((prev) => {
-            const existing = prev[conversationId] || [];
-
-            if (
-                existing.some(
-                    (message) =>
-                        String(message.id) === String(newMessage.id)
-                )
-            ) {
-                return prev;
-            }
-
-            return {
-                ...prev,
-                [conversationId]: [...existing, newMessage],
-            };
-        });
+      });
     };
 
     const handleSocketError = ({ message } = {}) => {
-        toast.error(message || "Unable to process chat request");
+      toast.error(message || "Unable to process chat request");
     };
 
     socket.on("receive_message", handleReceiveMessage);
@@ -288,15 +289,15 @@ useEffect(() => {
     socket.on("socket_error", handleSocketError);
 
     if (socket.connected) {
-        joinConversation();
+      joinConversation();
     }
 
     return () => {
-        socket.off("connect", joinConversation);
-        socket.off("receive_message", handleReceiveMessage);
-        socket.off("socket_error", handleSocketError);
+      socket.off("connect", joinConversation);
+      socket.off("receive_message", handleReceiveMessage);
+      socket.off("socket_error", handleSocketError);
     };
-}, [currentUserId, selectedChat?.conversationId]);
+  }, [currentUserId, selectedChat?.conversationId]);
 
 
   // There  is Quick replay messages 
@@ -332,10 +333,26 @@ useEffect(() => {
     pressTimer.current = setTimeout(() => {
       longPressTriggered.current = true;
       setSelectedMsg(msg);
-      
+
       if (navigator.vibrate) navigator.vibrate(30);
     }, LONG_PRESS_DURATION);
   };
+
+
+
+  // console.log(onlineUsers, "humms")
+  // useEffect(() => {
+  //   console.log("[presence] onlineUsers changed:", [...onlineUsers]);
+  // }, [onlineUsers]);
+  // useEffect(() => {
+  //   const onC = () => console.log("[socket] connect", socket.id);
+  //   const onD = (r) => console.log("[socket] disconnect", r);
+  //   socket.on("connect", onC);
+  //   socket.on("disconnect", onD);
+  //   return () => { socket.off("connect", onC); socket.off("disconnect", onD); };
+  // }, []);
+
+
 
   const cancelPress = () => {
     if (pressTimer.current) {
@@ -355,72 +372,72 @@ useEffect(() => {
   const closeMenu = () => setSelectedMsg(null);
 
   // ===== Delete logic =====
-  
-const handleDelete = async (scope) => {
-  if (!selectedMsg || !selectedChat) return;
 
-  if (scope === "everyone" && selectedMsg.from !== "me") {
-    closeMenu();
-    return;
-  }
+  const handleDelete = async (scope) => {
+    if (!selectedMsg || !selectedChat) return;
 
-  const conversationId = selectedChat.conversationId;
-  const messageId = selectedMsg.id;
-
-  setLoading(scope);
-
-  try {
-    const response = await DeleteMessage(
-      conversationId,
-      messageId,
-      scope
-    );
-
-    if (!response.success) {
-      toast.error("Unable to delete message");
+    if (scope === "everyone" && selectedMsg.from !== "me") {
+      closeMenu();
       return;
     }
 
-    setMessages((prev) => {
-      const existing = prev[conversationId] || [];
+    const conversationId = selectedChat.conversationId;
+    const messageId = selectedMsg.id;
 
-      if (scope === "me") {
-        return {
-          ...prev,
-          [conversationId]: existing.filter(
-            (message) => String(message.id) !== String(messageId)
-          ),
-        };
+    setLoading(scope);
+
+    try {
+      const response = await DeleteMessage(
+        conversationId,
+        messageId,
+        scope
+      );
+
+      if (!response.success) {
+        toast.error("Unable to delete message");
+        return;
       }
 
-      return {
-        ...prev,
-        [conversationId]: existing.map((message) =>
-          String(message.id) === String(messageId)
-            ? {
+      setMessages((prev) => {
+        const existing = prev[conversationId] || [];
+
+        if (scope === "me") {
+          return {
+            ...prev,
+            [conversationId]: existing.filter(
+              (message) => String(message.id) !== String(messageId)
+            ),
+          };
+        }
+
+        return {
+          ...prev,
+          [conversationId]: existing.map((message) =>
+            String(message.id) === String(messageId)
+              ? {
                 ...message,
                 text: "This message was deleted",
                 isDeletedForEveryone: true,
               }
-            : message
-        ),
-      };
-    });
+              : message
+          ),
+        };
+      });
 
-    setSelectedMsg(null);
+      setSelectedMsg(null);
 
-    toast.success(
-      scope === "everyone"
-        ? "Deleted for everyone"
-        : "Deleted for you"
-    );
-  } catch {
-    toast.error("Unable to delete message");
-  } finally {
-    setLoading(null);
-    closeMenu();
-  }
-};
+      toast.success(
+        scope === "everyone"
+          ? "Deleted for everyone"
+          : "Deleted for you"
+      );
+    } catch {
+      toast.error("Unable to delete message");
+    } finally {
+      setLoading(null);
+      closeMenu();
+    }
+  };
 
   // ===== Chat selection / send =====
   const handleSelectChat = async (contact) => {
@@ -462,58 +479,58 @@ const handleDelete = async (scope) => {
     sendMessage(input);
     setInput('');
   };
-  
+
 
   // Send Message  Function
 
-const sendMessage = (text) => {
+  const sendMessage = (text) => {
     const clean = text.trim();
 
     if (!clean || !selectedChat) return;
 
     if (!socket.connected) {
-        toast.error("Real-time connection is unavailable");
-        return;
+      toast.error("Real-time connection is unavailable");
+      return;
     }
 
     const conversationId = selectedChat.conversationId;
 
     socket.emit(
-        "send_message",
-        { conversationId, content: clean },
-        (response) => {
-            if (!response?.success) {
-                toast.error(response?.message || "Failed to send message");
-                return;
-            }
-
-            const msg = response.message;
-
-            const newMessage = {
-                id: msg._id,
-                from: "me",
-                text: msg.content,
-                time: new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
-            };
-
-            setMessages((prev) => {
-                const existing = prev[conversationId] || [];
-
-                if (existing.some((message) => message.id === newMessage.id)) {
-                    return prev;
-                }
-
-                return {
-                    ...prev,
-                    [conversationId]: [...existing, newMessage],
-                };
-            });
+      "send_message",
+      { conversationId, content: clean },
+      (response) => {
+        if (!response?.success) {
+          toast.error(response?.message || "Failed to send message");
+          return;
         }
+
+        const msg = response.message;
+
+        const newMessage = {
+          id: msg._id,
+          from: "me",
+          text: msg.content,
+          time: new Date(msg.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+
+        setMessages((prev) => {
+          const existing = prev[conversationId] || [];
+
+          if (existing.some((message) => message.id === newMessage.id)) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            [conversationId]: [...existing, newMessage],
+          };
+        });
+      }
     );
-};
+  };
 
 
 
@@ -529,10 +546,10 @@ const sendMessage = (text) => {
   };
 
   // ===== Derived: is the selected message mine? =====
-  const isOwnMessage = selectedMsg?.from === 'me' && selectedMsg?.text  !== "This message was deleted";
+  const isOwnMessage = selectedMsg?.from === 'me' && selectedMsg?.text !== "This message was deleted";
 
 
-// const [ isOnline, setIsOnline ] =  useState(false);
+  // const [ isOnline, setIsOnline ] =  useState(false);
 
 
 
@@ -563,7 +580,7 @@ const sendMessage = (text) => {
           <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
             <div className="relative">
               <div className="w-11 h-11 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/30">
-                { user.username?.charAt(0).toUpperCase() || "?"}
+                {user.username?.charAt(0).toUpperCase() || "?"}
               </div>
               {/* <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full  bg-emerald-400  border-2 border-purple-900"></span> */}
             </div>
@@ -595,13 +612,12 @@ const sendMessage = (text) => {
               const lastMsg = messages[contact.conversationId]?.slice(-1)[0];
 
               const isOnline = onlineUsers.has(String(contact.id));
-           
-            
+
               const id = contact.id;
               const username = contact.username;
               const avatar = contact.username?.charAt(0).toUpperCase() || "?";
               const lastMessage = contact.lastMessage || "";
-             
+
               return (
                 <button
                   key={id}
@@ -626,7 +642,7 @@ const sendMessage = (text) => {
 
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium truncate">{username}</p>
-                
+
                     {lastMsg && (
                       <p className="text-white/50 text-xs truncate">{lastMessage}</p>
                     )}
@@ -669,7 +685,7 @@ const sendMessage = (text) => {
                     {selectedChat.username?.charAt(0).toUpperCase() || "?"}
                   </div>
 
-                  {  onlineUsers.has(String(selectedChat?.id)) ? (
+                  {onlineUsers.has(String(selectedChat?.id)) ? (
                     <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-purple-900"></span>
                   ) : (
                     // <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-gray-700 border-2 border-purple-300"></span>
@@ -678,9 +694,9 @@ const sendMessage = (text) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-    
+
                   <p className="text-white font-semibold text-sm truncate">{selectedChat.username}</p>
-                  <p className="text-emerald-300 text-xs"> { onlineUsers.has(String(selectedChat?.id)) ?  "Online" : (<h5 className=' text-blue-300 '>Offline</h5>) }</p>
+                  <p className="text-emerald-300 text-xs"> {onlineUsers.has(String(selectedChat?.id)) ? "Online" : (<h5 className=' text-blue-300 '>Offline</h5>)}</p>
                 </div>
 
                 <button className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition">
@@ -849,63 +865,63 @@ const sendMessage = (text) => {
               overflow-hidden
               animate-modal-in
             "
-            >
+          >
 
 
-            { Loading ? (
+            {Loading ? (
 
-            <div className="flex flex-col items-center-center px-8 py-14 animate-backdrop-in">
+              <div className="flex flex-col items-center-center px-8 py-14 animate-backdrop-in">
 
-              {/* Big spinner */}
-              <div className="relative justify-center">
-              <Spinner className="w-8 h-6 text-purple-400" />
+                {/* Big spinner */}
+                <div className="relative justify-center">
+                  <Spinner className="w-8 h-6 text-purple-400" />
+                </div>
+
+                {/* Label */}
+                <p className="text-white text-sm font-medium mt-6">
+                  {Loading === 'everyone'
+                    ? 'Deleting for everyone…'
+                    : 'Deleting for you…'}
+                </p>
+
+                <p className="text-white/40 text-xs mt-1.5">
+                  Please wait a moment
+                </p>
               </div>
+            ) : (
 
-              {/* Label */}
-              <p className="text-white text-sm font-medium mt-6">
-              {Loading === 'everyone'
-              ? 'Deleting for everyone…'
-              : 'Deleting for you…'}
-              </p>
+              <div>
+                {/* Header */}
+                <div className="relative px-6 pt-5 pb-3">
+                  <h3 className="text-white text-base font-semibold text-center">
+                    Delete message?
+                  </h3>
+                  <button
+                    onClick={closeMenu}
+                    className="absolute top-4 right-4 p-1 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
 
-              <p className="text-white/40 text-xs mt-1.5">
-              Please wait a moment
-              </p>
-            </div>
-            )  : (
-            
-            <div>
-              {/* Header */}
-            <div className="relative px-6 pt-5 pb-3">
-              <h3 className="text-white text-base font-semibold text-center">
-                Delete message?
-              </h3>
-              <button
-                onClick={closeMenu}
-                className="absolute top-4 right-4 p-1 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+                {/* Message preview */}
+                <div className="px-6 pb-4">
+                  <p className="text-white/50 text-xs text-center line-clamp-2 italic">
+                    "{selectedMsg.text}"
+                  </p>
+                </div>
 
-            {/* Message preview */}
-            <div className="px-6 pb-4">
-              <p className="text-white/50 text-xs text-center line-clamp-2 italic">
-                "{selectedMsg.text}"
-              </p>
-            </div>
+                {/* Divider */}
+                <div className="h-px bg-white/10"></div>
 
-            {/* Divider */}
-            <div className="h-px bg-white/10"></div>
-
-            {/* Actions */}
-            <div className="flex flex-col">
-              {/* Delete for Everyone — only for own messages */}
-              {isOwnMessage && (
-                <button
-                  onClick={() => handleDelete('everyone')}
-                  className="
+                {/* Actions */}
+                <div className="flex flex-col">
+                  {/* Delete for Everyone — only for own messages */}
+                  {isOwnMessage && (
+                    <button
+                      onClick={() => handleDelete('everyone')}
+                      className="
                     flex items-center justify-center gap-2
                     px-6 py-4
                     text-red-400 hover:text-red-300
@@ -914,16 +930,16 @@ const sendMessage = (text) => {
                     transition
                     border-b border-white/10
                   "
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete for Everyone
-                </button>
-              )}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete for Everyone
+                    </button>
+                  )}
 
-              {/* Delete for Me — always */}
-              <button
-                onClick={() => handleDelete('me')}
-                className="
+                  {/* Delete for Me — always */}
+                  <button
+                    onClick={() => handleDelete('me')}
+                    className="
                   flex items-center justify-center gap-2
                   px-6 py-4
                   text-amber-300 hover:text-amber-200
@@ -932,30 +948,30 @@ const sendMessage = (text) => {
                   transition
                   border-b border-white/10
                 "
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete for Me
-              </button>
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete for Me
+                  </button>
 
-              {/* Cancel */}
-              <button
-                onClick={closeMenu}
-                className="
+                  {/* Cancel */}
+                  <button
+                    onClick={closeMenu}
+                    className="
                   px-6 py-4
                   text-white/80 hover:text-white
                   hover:bg-white/5
                   font-medium text-sm
                   transition
                 "
-              >
-                Cancel
-              </button>
-            </div> 
-            </div>
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
 
             )};
 
-          </div>    
+          </div>
         </div>
       )}
     </div>

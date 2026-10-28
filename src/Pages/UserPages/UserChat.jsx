@@ -112,13 +112,15 @@ const ChatPage = () => {
   useEffect(() => {
     if (!currentUserId) return;
 
-    const handleContactStatus = ({ userId, isOnline , statuses}) => {
+    const handleContactStatus = ({ userId, isOnline }) => {
       setOnlineUsers((prev) => {
         const next = new Set(prev);
 
         if (isOnline) {
-          next.add(String(statuses));
+          // Add the actual contact ID when the user comes online.
+          next.add(String(userId));
         } else {
+          // Remove the same contact ID when the user goes offline.
           next.delete(String(userId));
         }
 
@@ -142,7 +144,7 @@ const ChatPage = () => {
         );
       });
     };
-    
+
     socket.on("connect", fetchContactStatuses);
 
     if (socket.connected) {

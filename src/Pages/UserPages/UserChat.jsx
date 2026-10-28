@@ -112,34 +112,12 @@ const ChatPage = () => {
   useEffect(() => {
     if (!currentUserId) return;
 
-    // const handleContactStatus = ({ userId, isOnline }) => {
-    //   setOnlineUsers((prev) => {
-    //     const next = new Set(prev);
-
-    //     if (isOnline) {
-    //       next.add(String(userId));
-    //     } else {
-    //       next.delete(String(userId));
-    //     }
-
-    //     return next;
-    //   });
-    // };
-
-
-    const handleContactStatus = (status = {}) => {
-      const { userId, isOnline } = status;
-
-      // Pause here to inspect the actual event received from the backend.
-      debugger;
-
-      if (userId == null || typeof isOnline !== "boolean") return;
-
+    const handleContactStatus = ({ userId, isOnline , statuses}) => {
       setOnlineUsers((prev) => {
         const next = new Set(prev);
 
         if (isOnline) {
-          next.add(String(userId));
+          next.add(String(statuses));
         } else {
           next.delete(String(userId));
         }
@@ -368,9 +346,11 @@ const ChatPage = () => {
   // useEffect(() => {
   //   console.log("[presence] onlineUsers changed:", [...onlineUsers]);
   // }, [onlineUsers]);
+
+
   // useEffect(() => {
-  //   const onC = () => console.log("[socket] connect", socket.id);
-  //   const onD = (r) => console.log("[socket] disconnect", r);
+  //   // const onC = () => console.log("[socket] connect", socket.id);
+  //   // const onD = (r) => console.log("[socket] disconnect", r);
   //   socket.on("connect", onC);
   //   socket.on("disconnect", onD);
   //   return () => { socket.off("connect", onC); socket.off("disconnect", onD); };
